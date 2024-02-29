@@ -5,6 +5,7 @@ import Scanner from "./util/lexer/lexer";
 import Parser from "./util/parser/parser";
 import { Expr } from "./util/expressions/exp";
 import AstPrinter from "./util/debug/astprinter";
+import Interpreter from "./util/interpreter/interpreter";
 
 export default class Flox {
     private hasError: boolean;
@@ -65,6 +66,12 @@ export default class Flox {
 
         if(expression == null) return;
 
-        console.log(new AstPrinter().print(expression));
+        //console.log(new AstPrinter().print(expression));
+
+        var interpreter: Interpreter = new Interpreter();
+
+        var evaluation = interpreter.interpret(expression);
+
+        console.log(evaluation);
     };
 }

@@ -141,7 +141,7 @@ export default class Scanner {
 
         this.advance(); // for closing '"'
 
-        var value: string = this.source.substring(this.start + 1, this.current + 1);
+        var value: string = this.source.substring(this.start + 1, this.current - 1);
         this.addToken(TokenType.STRING, value);
 
     }

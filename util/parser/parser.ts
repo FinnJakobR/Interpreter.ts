@@ -1,4 +1,3 @@
-import exp from "constants";
 import { Token, TokenType } from "../lexer/token";
 import { Binary, Expr, Grouping, Literal, Unary } from "../expressions/exp";
 import { runtimeError } from "../errors/error";

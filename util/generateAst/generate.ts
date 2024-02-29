@@ -8,7 +8,7 @@ class GenerateAst {
     constructor(outputdir: string, ast_def_source: string){
         this.outputdir = outputdir;
         this.ast_def_source = ast_def_source;
-        this.source = "";
+        this.source = `import { Token } from "../lexer/token";\n\n`;
         this.types = this.ast_def_source.split("\n");
     }
 
@@ -92,11 +92,12 @@ class GenerateAst {
 function main(){
     const args: string[] = process.argv.slice(2);
 
-    var outputdir = args[1]+="exp.ts";
+    var outputdir = args[0]+="exp.ts";
 
-    var info = args[0];
+    var infoExpr = "./ast.exp";
+    var infoStmt = "./ast_stmt.txt";
 
-    var c = new GenerateAst(outputdir, fs.readFileSync(info, {encoding: "utf-8"}));
+    var c = new GenerateAst(outputdir, fs.readFileSync(infoExpr, {encoding: "utf-8"}));
 
     c.defineAst("Expr");
 
