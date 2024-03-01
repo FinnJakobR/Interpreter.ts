@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, Literal, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
 
 class ParseError extends Error {
@@ -111,7 +111,7 @@ export default class Parser {
     private statement(): Stmt {
         if(this.match(TokenType.PRINT)) return this.printStatement();
         if(this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
-
+        if(this.match(TokenType.IF)) return this.ifStatement();
         return this.expressionStatement();
     
     }
@@ -127,6 +127,24 @@ export default class Parser {
         this.consume(TokenType.RIGHT_BRACE, "except '}' after block end!");
 
         return statements;
+    }
+
+    private ifStatement(): Stmt{
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+
+        var condition: Expr = this.expression();
+
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after 'if'.");
+
+        var thenBranch: Stmt = this.statement();
+
+        var elseBranch: Stmt | null = null;
+
+        if(this.match(TokenType.ELSE)){
+            elseBranch = this.statement();
+        }
+
+        return new If(condition, thenBranch, elseBranch as Stmt);
     }
 
     private declarations(): Stmt{
@@ -310,6 +328,7 @@ export default class Parser {
         if(this.match(TokenType.TRUE)) return new Literal(true);
         if(this.match(TokenType.FALSE)) return new Literal(false);
         if(this.match(TokenType.NIL)) return new Literal(null);
+        if(this.match(TokenType.MAYBE)) return new Literal(Math.random() < 0.5);
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Literal(this.previous().literal);
