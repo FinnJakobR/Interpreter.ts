@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Expr, Expression, Grouping, Literal, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, Literal, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
 
 class ParseError extends Error {
@@ -109,19 +109,33 @@ export default class Parser {
 
     private statement(): Stmt {
         if(this.match(TokenType.PRINT)) return this.printStatement();
+        if(this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
 
         return this.expressionStatement();
     
     }
 
-    private declarations(): Stmt | null{
+    private block(): (Stmt)[]{
+    
+        var statements: (Stmt)[] = [];
+
+        while(!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()){
+            statements.push(this.declarations());
+        }
+
+        this.consume(TokenType.RIGHT_BRACE, "except '}' after block end!");
+
+        return statements;
+    }
+
+    private declarations(): Stmt{
         try {
             if(this.match(TokenType.VAR)) return this.varDeclaration();
 
             return this.statement();
         } catch (error) {
             this.synchronize();
-            return null;
+            return this.declarations();
         }
     }
 

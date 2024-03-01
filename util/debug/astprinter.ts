@@ -1,4 +1,4 @@
-import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign } from "../expressions/exp";
+import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign, Block } from "../expressions/exp";
 
 export default class AstPrinter implements Visitor<string>{
     
@@ -38,6 +38,17 @@ export default class AstPrinter implements Visitor<string>{
 
       visitVariableExpr(expr: Variable): string {
           return expr.name.lexeme;
+      }
+
+      visitBlockStmt(stmt: Block): string {
+       //CHANGE ME 
+       
+        var s = "";
+          for(var statement of stmt.statements){
+            s += this.parenthesize("statement", statement);
+          }
+
+          return s;
       }
 
       visitAssignExpr(expr: Assign): string {

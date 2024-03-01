@@ -1,6 +1,6 @@
 
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import Enviroment from "../state/environment";
 
@@ -67,9 +67,33 @@ export default class Interpreter implements Visitor<Object | null>{
         throw runtimeError(operator, "Operand must be a number.");
     }
 
+    executeBlocks(statements: Stmt[], enviroment: Enviroment){
+        
+        
+        //handle Scope 
+        var previous: Enviroment = this.enviroment;
+       
+        try {
+            this.enviroment = enviroment;
+
+            for(var statement of statements){
+                this.execute(statement);
+            }
+
+        } finally {
+            this.enviroment = previous;
+        }
+    };
+
     public visitPrintStmt(stmt: Print): Object | null{
         var value:  Object | null = this.evaluate(stmt.expression);
         console.log(value);
+        return null;
+    }
+
+    visitBlockStmt(stmt: Block): Object | null {
+        this.executeBlocks(stmt.statements, new Enviroment(this.enviroment));
+
         return null;
     }
 

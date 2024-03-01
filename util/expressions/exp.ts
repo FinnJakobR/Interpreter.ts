@@ -152,6 +152,7 @@ export abstract class Stmt {
 visitExpressionStmt( stmt: Expression) : R;
 visitPrintStmt( stmt: Print) : R;
 visitVarStmt( stmt: Var) : R;
+visitBlockStmt( stmt: Block) : R;
 }
 export class Expression extends Stmt{
     public expression : Expr;
@@ -185,6 +186,17 @@ export class Var extends Stmt{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitVarStmt(this);
+        }}
+
+
+export class Block extends Stmt{
+    public statements : Stmt[];
+    constructor ( statements : Stmt[],){
+        super()
+        this.statements = statements;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitBlockStmt(this);
         }}
 
 
