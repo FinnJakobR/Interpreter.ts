@@ -6,18 +6,23 @@ import Enviroment from "../state/environment";
 
 export default class Interpreter implements Visitor<Object | null>{
 
-    private enviroment: Enviroment; 
+    private enviroment: Enviroment;
+    private REPL?: boolean; 
 
-    constructor(){
+    constructor(REPL?: boolean){
         this.enviroment = new Enviroment();
+        this.REPL = REPL ?? false;
     };
 
     public interpret(statements: Stmt[]){
+        var repl_prints = [];
         try {
             
             for(var statement of statements){
-                this.execute(statement);
+                repl_prints.push(this.execute(statement));
             }
+
+            if(this.REPL) return repl_prints;
 
         } catch (error) {
             return null;
@@ -29,7 +34,7 @@ export default class Interpreter implements Visitor<Object | null>{
     }
 
     private execute(stmt: Stmt ) {
-        stmt.accept(this);
+        return stmt.accept(this);
       }
 
     private isTruthly(object : Object | null){
@@ -114,8 +119,7 @@ export default class Interpreter implements Visitor<Object | null>{
     }
 
     public visitExpressionStmt(stmt: Expression) : Object | null{
-        this.evaluate(stmt.expression);
-        return null;
+        return this.evaluate(stmt.expression);
     }
     
     public visitLiteralExpr(expr: Literal): Object | null {

@@ -27,7 +27,8 @@ export default class Parser {
 
     public parse(): Stmt[] {
          var statements : Stmt[] = [];
-            try {
+            
+         try {
 
               while(!this.isAtEnd()){
 
@@ -135,7 +136,7 @@ export default class Parser {
             return this.statement();
         } catch (error) {
             this.synchronize();
-            return this.declarations();
+            return this.statement();
         }
     }
 

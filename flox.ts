@@ -25,17 +25,35 @@ export default class Flox {
     }
 
     runPrompt(): void {
+
+        var interpreter = new Interpreter(true);
+        
         
         while(true){
+
+            if(this.hasError){
+                interpreter = new Interpreter();
+                this.hasError = false;
+            }
+
             const prompt = promptSync();
             
             const line = prompt("> ");
             
             if(!line || line === "exit" ) return;
 
-            this.run(line);
+            var s = new Scanner(line);
 
-            this.hasError = false;
+            var tokens = s.scanTokens();
+
+            var parser: Parser = new Parser(tokens);
+
+            var expression: Stmt[] = parser.parse();
+
+           var z = interpreter.interpret(expression);
+
+           console.log(z![0]);
+
         }
     }
 
