@@ -1,1 +1,2 @@
- TEST FILE FOR FLEX
+var x = 10;
+print x  + y;

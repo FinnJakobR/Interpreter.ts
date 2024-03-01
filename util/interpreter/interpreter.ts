@@ -1,11 +1,16 @@
 
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
+import Enviroment from "../state/environment";
 
 export default class Interpreter implements Visitor<Object | null>{
 
-    constructor(){};
+    private enviroment: Enviroment; 
+
+    constructor(){
+        this.enviroment = new Enviroment();
+    };
 
     public interpret(statements: Stmt[]){
         try {
@@ -68,7 +73,23 @@ export default class Interpreter implements Visitor<Object | null>{
         return null;
     }
 
-    visitExpressionStmt(stmt: Expression) : Object | null{
+    visitVarStmt(stmt: Var): Object | null {
+        var value : Object | null = null;
+
+        if(stmt.initializer != null){
+            value = this.evaluate(stmt.initializer);
+        }
+
+        this.enviroment.define(stmt.name.lexeme, value);
+
+        return null;
+    }
+
+    visitVariableExpr(expr: Variable): Object | null {
+        return this.enviroment.get(expr.name);
+    }
+
+    public visitExpressionStmt(stmt: Expression) : Object | null{
         this.evaluate(stmt.expression);
         return null;
     }

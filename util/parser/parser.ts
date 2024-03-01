@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary } from "../expressions/exp";
+import { Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary, Var, Variable } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
 
 class ParseError extends Error {
@@ -30,7 +30,10 @@ export default class Parser {
             try {
 
               while(!this.isAtEnd()){
-                statements.push(this.statement());
+
+                var dec: Stmt | null = this.declarations();
+                if(dec) statements.push(dec);
+
               }
 
               return statements;
@@ -108,7 +111,32 @@ export default class Parser {
         if(this.match(TokenType.PRINT)) return this.printStatement();
 
         return this.expressionStatement();
-       
+    
+    }
+
+    private declarations(): Stmt | null{
+        try {
+            if(this.match(TokenType.VAR)) return this.varDeclaration();
+
+            return this.statement();
+        } catch (error) {
+            this.synchronize();
+            return null;
+        }
+    }
+
+    private varDeclaration(): Stmt{
+        var name: Token = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+        var initializer: Expr | null = null;
+
+        if(this.match(TokenType.EQUAL)){
+            initializer = this.expression();
+        }
+
+        this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+
+        return new Var(name, initializer);
     }
 
     private printStatement() : Stmt {
@@ -201,6 +229,10 @@ export default class Parser {
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Literal(this.previous().literal);
           }
+
+        if(this.match(TokenType.IDENTIFIER)){
+            return new Variable(this.previous());
+        }
 
         if(this.match(TokenType.LEFT_PAREN)){
             var expr = this.expression();
