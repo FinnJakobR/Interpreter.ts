@@ -7,6 +7,10 @@ export abstract class Expr {
 
  export interface Visitor <R> {
 visitAssignExpr( expr: Assign) : R;
+visitPlusAssignExpr( expr: PlusAssign) : R;
+visitMinusAssignExpr( expr: MinusAssign) : R;
+visitStarAssignExpr( expr: StarAssign) : R;
+visitSlashAssignExpr( expr: SlashAssign) : R;
 visitBinaryExpr( expr: Binary) : R;
 visitGroupingExpr( expr: Grouping) : R;
 visitLiteralExpr( expr: Literal) : R;
@@ -23,6 +27,58 @@ export class Assign extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitAssignExpr(this);
+        }}
+
+
+export class PlusAssign extends Expr{
+    public name : Token;
+    public value : Expr;
+    constructor ( name : Token, value : Expr,){
+        super()
+        this.name = name;
+        this.value = value;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitPlusAssignExpr(this);
+        }}
+
+
+export class MinusAssign extends Expr{
+    public name : Token;
+    public value : Expr;
+    constructor ( name : Token, value : Expr,){
+        super()
+        this.name = name;
+        this.value = value;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitMinusAssignExpr(this);
+        }}
+
+
+export class StarAssign extends Expr{
+    public name : Token;
+    public value : Expr;
+    constructor ( name : Token, value : Expr,){
+        super()
+        this.name = name;
+        this.value = value;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitStarAssignExpr(this);
+        }}
+
+
+export class SlashAssign extends Expr{
+    public name : Token;
+    public value : Expr;
+    constructor ( name : Token, value : Expr,){
+        super()
+        this.name = name;
+        this.value = value;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitSlashAssignExpr(this);
         }}
 
 

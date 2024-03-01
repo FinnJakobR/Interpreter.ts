@@ -1,4 +1,4 @@
-import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign } from "../expressions/exp";
+import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign } from "../expressions/exp";
 
 export default class AstPrinter implements Visitor<string>{
     
@@ -42,6 +42,22 @@ export default class AstPrinter implements Visitor<string>{
 
       visitAssignExpr(expr: Assign): string {
         return this.parenthesize(`assignment ${expr.name.lexeme}`, expr.value);
+      }
+
+      visitMinusAssignExpr(expr: MinusAssign): string {
+        return this.parenthesize(`minus assignment ${expr.name.lexeme}`, expr.value);
+      }
+
+      visitPlusAssignExpr(expr: PlusAssign): string {
+        return this.parenthesize(`plus assignment ${expr.name.lexeme}`, expr.value);
+      }
+
+      visitSlashAssignExpr(expr: SlashAssign): string {
+        return this.parenthesize(`slash assignment ${expr.name.lexeme}`, expr.value);
+      }
+
+      visitStarAssignExpr(expr: StarAssign): string {
+        return this.parenthesize(`start assignment ${expr.name.lexeme}`, expr.value);
       }
 
       visitExpressionStmt(stmt: Expression): string {

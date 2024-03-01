@@ -1,6 +1,6 @@
 
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import Enviroment from "../state/environment";
 
@@ -100,12 +100,74 @@ export default class Interpreter implements Visitor<Object | null>{
 
     public visitAssignExpr(expr: Assign): Object | null {
         var value: Object | null = this.evaluate(expr.value);
-        
         this.enviroment.assign(expr.name, value);
         
         return value;
 
     }
+
+    public visitPlusAssignExpr(expr: Assign): Object | null {
+        var value: Object | null = this.evaluate(expr.value);
+
+        var variable_value: Object | null = this.enviroment.get(expr.name);
+
+        if(typeof value == "number" && typeof variable_value == "number") value = <number>value + <number>variable_value;
+
+        if(typeof value === "string" && typeof variable_value == "string") value = <string>value + <string>variable_value;
+
+        if((typeof value == "string" && typeof variable_value === "number") || (typeof value == "number" && typeof variable_value === "string") ) value = value.toString() + variable_value.toString();
+
+
+        this.enviroment.assign(expr.name, value);
+        
+        return value;
+
+    }
+    public visitMinusAssignExpr(expr: MinusAssign): Object | null {
+        var value: Object | null = this.evaluate(expr.value);
+
+        var variable_value: Object | null = this.enviroment.get(expr.name);
+
+        this.checkNumberOperands(expr.name, value,variable_value);
+
+        value = <number>variable_value - <number>value;
+
+        this.enviroment.assign(expr.name, value);
+
+        return value;
+    }
+
+    public visitSlashAssignExpr(expr: SlashAssign): Object | null {
+        var value: Object | null = this.evaluate(expr.value);
+
+        var variable_value: Object | null = this.enviroment.get(expr.name);
+
+        this.checkNumberOperands(expr.name, value,variable_value);
+        this.checkIfNull(value, expr.name);
+                
+        value = <number> variable_value / <number>value;
+
+        this.enviroment.assign(expr.name, value);
+
+        return value;
+    }
+
+    public visitStarAssignExpr(expr: StarAssign): Object | null {
+        
+        var value: Object | null = this.evaluate(expr.value);
+
+        var variable_value: Object | null = this.enviroment.get(expr.name);
+
+        this.checkNumberOperands(expr.name, value,variable_value);
+
+        value = <number> variable_value * <number>value;
+
+        this.enviroment.assign(expr.name, value);
+
+        return value;
+    }
+
+
 
     
     public visitGroupingExpr(expr: Grouping): Object | null {

@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary, Var, Variable } from "../expressions/exp";
+import { Assign, Binary, Expr, Expression, Grouping, Literal, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
 
 class ParseError extends Error {
@@ -170,6 +170,58 @@ export default class Parser {
             if(expr instanceof Variable){
                 var name : Token = expr.name;
                 return new Assign(name, value);
+            }
+
+            runtimeError(equals, `unknown variable ${equals.lexeme}.`);
+
+        }
+
+        if(this.match(TokenType.PLUS_EQUAL)){
+            var equals: Token = this.previous();
+            var value: Expr = this.assignment();
+            
+            if(expr instanceof Variable){
+                var name : Token = expr.name;
+                return new PlusAssign(name, value);
+            }
+
+            runtimeError(equals, `unknown variable ${equals.lexeme}.`);
+
+        }
+
+        if(this.match(TokenType.MINUS_EQUAL)){
+            var equals: Token = this.previous();
+            var value: Expr = this.assignment();
+            
+            if(expr instanceof Variable){
+                var name : Token = expr.name;
+                return new MinusAssign(name, value);
+            }
+
+            runtimeError(equals, `unknown variable ${equals.lexeme}.`);
+
+        }
+
+        if(this.match(TokenType.STAR_EQUAL)){
+            var equals: Token = this.previous();
+            var value: Expr = this.assignment();
+            
+            if(expr instanceof Variable){
+                var name : Token = expr.name;
+                return new StarAssign(name, value);
+            }
+
+            runtimeError(equals, `unknown variable ${equals.lexeme}.`);
+
+        }
+
+        if(this.match(TokenType.SLASH_EQUAL)){
+            var equals: Token = this.previous();
+            var value: Expr = this.assignment();
+            
+            if(expr instanceof Variable){
+                var name : Token = expr.name;
+                return new SlashAssign(name, value);
             }
 
             runtimeError(equals, `unknown variable ${equals.lexeme}.`);

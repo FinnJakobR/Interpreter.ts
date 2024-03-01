@@ -43,10 +43,20 @@ export default class Scanner {
             case "}": this.addToken(TokenType.RIGHT_BRACE, null); break;
             case ",": this.addToken(TokenType.COMMA, null); break;
             case ".": this.addToken(TokenType.DOT, null); break;
-            case "-": this.addToken(TokenType.MINUS, null); break;
+            
+            case "-":
+                this.addToken(this.check("=") ? TokenType.MINUS_EQUAL : TokenType.MINUS, null);
+                break;
+            
             case ";": this.addToken(TokenType.SEMICOLON, null); break;
-            case "*": this.addToken(TokenType.STAR, null); break;
-            case "+": this.addToken(TokenType.PLUS, null); break;
+            
+            case "*": 
+                this.addToken(this.check("=") ? TokenType.STAR_EQUAL : TokenType.STAR, null);
+                break;
+
+            case "+": 
+                this.addToken(this.check("=") ? TokenType.PLUS_EQUAL : TokenType.PLUS, null);
+                break;
 
             case "!": 
                 this.addToken(this.check("=") ? TokenType.BANG_EQUAL : TokenType.BANG, null);
@@ -67,7 +77,7 @@ export default class Scanner {
                 if(this.check("/")){
                     while(this.peek() != "\n" && !this.isAtEnd()) this.advance();
                 }else{
-                    this.addToken(TokenType.SLASH, null);
+                    this.addToken(this.check("=") ? TokenType.SLASH_EQUAL : TokenType.SLASH, null);
                 }
                 
                 break;
