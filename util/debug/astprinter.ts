@@ -1,4 +1,4 @@
-import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable } from "../expressions/exp";
+import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign } from "../expressions/exp";
 
 export default class AstPrinter implements Visitor<string>{
     
@@ -38,6 +38,10 @@ export default class AstPrinter implements Visitor<string>{
 
       visitVariableExpr(expr: Variable): string {
           return expr.name.lexeme;
+      }
+
+      visitAssignExpr(expr: Assign): string {
+        return this.parenthesize(`assignment ${expr.name.lexeme}`, expr.value);
       }
 
       visitExpressionStmt(stmt: Expression): string {

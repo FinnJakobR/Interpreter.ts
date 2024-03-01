@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary, Var, Variable } from "../expressions/exp";
+import { Assign, Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary, Var, Variable } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
 
 class ParseError extends Error {
@@ -157,9 +157,27 @@ export default class Parser {
 
 
     private expression(): Expr{
-        return this.equality();
+        return this.assignment();
     }
 
+    private assignment(): Expr {
+        var expr: Expr = this.equality();
+
+        if(this.match(TokenType.EQUAL)){
+            var equals: Token = this.previous();
+            var value: Expr = this.assignment();
+            
+            if(expr instanceof Variable){
+                var name : Token = expr.name;
+                return new Assign(name, value);
+            }
+
+            runtimeError(equals, `unknown variable ${equals.lexeme}.`);
+
+        }
+
+        return expr;
+    }
     private equality(): Expr{
         var expr: Expr = this.comparison();
 

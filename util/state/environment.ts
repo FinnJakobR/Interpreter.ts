@@ -18,4 +18,13 @@ export default class Enviroment {
 
         throw runtimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
+
+    public assign(name: Token, value: Object | null): void {
+        if(this.value.has(name.lexeme)){
+            this.value.set(name.lexeme, value);
+            return;
+        };
+
+        runtimeError(name, "unknown variable!");
+    }
 }

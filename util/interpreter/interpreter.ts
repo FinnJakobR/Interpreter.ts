@@ -1,6 +1,6 @@
 
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import Enviroment from "../state/environment";
 
@@ -96,6 +96,15 @@ export default class Interpreter implements Visitor<Object | null>{
     
     public visitLiteralExpr(expr: Literal): Object | null {
         return expr.value;
+    }
+
+    public visitAssignExpr(expr: Assign): Object | null {
+        var value: Object | null = this.evaluate(expr.value);
+        
+        this.enviroment.assign(expr.name, value);
+        
+        return value;
+
     }
 
     

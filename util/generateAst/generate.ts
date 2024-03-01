@@ -101,7 +101,6 @@ function main(){
     c.defineAst("Expr",fs.readFileSync(infoExpr, {encoding: "utf-8"}));
 
     c.defineAst("Stmt", fs.readFileSync(infoStmt, {encoding: "utf-8"}))
-
     return;
 }
 
