@@ -2,17 +2,16 @@ import fs from "fs";
 
 class GenerateAst {
     private outputdir: string;
-    private ast_def_source: string;
     private source: string;
     private types: string[];
-    constructor(outputdir: string, ast_def_source: string){
+    constructor(outputdir: string){
         this.outputdir = outputdir;
-        this.ast_def_source = ast_def_source;
         this.source = `import { Token } from "../lexer/token";\n\n`;
-        this.types = this.ast_def_source.split("\n");
+        this.types = [];
     }
 
-    defineAst(baseName: string){
+    defineAst(baseName: string, source: string){
+        this.types = source.split("\n");
         this.source+= `export abstract class ${baseName} {\n`;
         this.source+= "  abstract accept<R>(visitor: Visitor<R>): R;\n"
         this.source += "}\n\n\n"
@@ -95,11 +94,13 @@ function main(){
     var outputdir = args[0]+="exp.ts";
 
     var infoExpr = "./ast.exp";
-    var infoStmt = "./ast_stmt.txt";
+    var infoStmt = "./ast.stmt";
 
-    var c = new GenerateAst(outputdir, fs.readFileSync(infoExpr, {encoding: "utf-8"}));
+    var c = new GenerateAst(outputdir);
 
-    c.defineAst("Expr");
+    c.defineAst("Expr",fs.readFileSync(infoExpr, {encoding: "utf-8"}));
+
+    c.defineAst("Stmt", fs.readFileSync(infoStmt, {encoding: "utf-8"}))
 
     return;
 }

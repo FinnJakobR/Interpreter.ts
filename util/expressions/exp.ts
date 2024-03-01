@@ -11,6 +11,7 @@ visitGroupingExpr( expr: Grouping) : R;
 visitLiteralExpr( expr: Literal) : R;
 visitUnaryExpr( expr: Unary) : R;
 }
+
 export class Binary extends Expr{
     public left : Expr;
     public operator : Token;
@@ -58,6 +59,37 @@ export class Unary extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitUnaryExpr(this);
+        }}
+
+
+export abstract class Stmt {
+  abstract accept<R>(visitor: Visitor<R>): R;
+}
+
+
+ export interface Visitor <R> {
+visitExpressionStmt( stmt: Expression) : R;
+visitPrintStmt( stmt: Print) : R;
+}
+export class Expression extends Stmt{
+    public expression : Expr;
+    constructor ( expression : Expr,){
+        super()
+        this.expression = expression;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitExpressionStmt(this);
+        }}
+
+
+export class Print extends Stmt{
+    public expression : Expr;
+    constructor ( expression : Expr,){
+        super()
+        this.expression = expression;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitPrintStmt(this);
         }}
 
 

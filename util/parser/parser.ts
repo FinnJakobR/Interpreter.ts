@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Binary, Expr, Grouping, Literal, Unary } from "../expressions/exp";
+import { Binary, Expr, Expression, Grouping, Literal, Print, Stmt, Unary } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
 
 class ParseError extends Error {
@@ -25,11 +25,19 @@ export default class Parser {
         return new ParseError();
     }
 
-    public parse(): Expr | null {
+    public parse(): Stmt[] {
+         var statements : Stmt[] = [];
             try {
-              return this.expression();
+
+              while(!this.isAtEnd()){
+                statements.push(this.statement());
+              }
+
+              return statements;
+
+
             } catch (error: any) {
-              return null;
+              return statements;
             }
     }
 
@@ -95,6 +103,30 @@ export default class Parser {
 
         return false;
     }
+
+    private statement(): Stmt {
+        if(this.match(TokenType.PRINT)) return this.printStatement();
+
+        return this.expressionStatement();
+       
+    }
+
+    private printStatement() : Stmt {
+        var value : Expr = this.expression();
+        this.consume(TokenType.SEMICOLON, "Expect ';' after Print Statement.");
+
+        return new Print(value);
+
+    }
+
+    private expressionStatement(): Stmt{
+        var value: Expr = this.expression();
+        this.consume(TokenType.SEMICOLON, "Expect ';' after Expression");
+
+        return new Expression(value);
+    }
+
+
 
     private expression(): Expr{
         return this.equality();

@@ -1,16 +1,19 @@
 
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 
 export default class Interpreter implements Visitor<Object | null>{
 
     constructor(){};
 
-    public interpret(expression: Expr){
+    public interpret(statements: Stmt[]){
         try {
-            var value = this.evaluate(expression);
-            return value;
+            
+            for(var statement of statements){
+                this.execute(statement);
+            }
+
         } catch (error) {
             return null;
         }
@@ -19,6 +22,10 @@ export default class Interpreter implements Visitor<Object | null>{
     private evaluate(expr: Expr): Object | null {
         return expr.accept(this);
     }
+
+    private execute(stmt: Stmt ) {
+        stmt.accept(this);
+      }
 
     private isTruthly(object : Object | null){
         
@@ -53,6 +60,17 @@ export default class Interpreter implements Visitor<Object | null>{
         if(typeof operantA == "number" && typeof operantB == "number") return;
 
         throw runtimeError(operator, "Operand must be a number.");
+    }
+
+    public visitPrintStmt(stmt: Print): Object | null{
+        var value:  Object | null = this.evaluate(stmt.expression);
+        console.log(value);
+        return null;
+    }
+
+    visitExpressionStmt(stmt: Expression) : Object | null{
+        this.evaluate(stmt.expression);
+        return null;
     }
     
     public visitLiteralExpr(expr: Literal): Object | null {

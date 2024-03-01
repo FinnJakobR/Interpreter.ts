@@ -1,4 +1,4 @@
-import { Visitor, Expr, Binary, Grouping, Literal, Unary } from "../expressions/exp";
+import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression } from "../expressions/exp";
 
 export default class AstPrinter implements Visitor<string>{
     
@@ -26,6 +26,14 @@ export default class AstPrinter implements Visitor<string>{
 
       visitBinaryExpr(expr: Binary): string {
           return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
+      }
+
+      visitPrintStmt(stmt: Print): string {
+          return this.parenthesize("print", stmt.expression);
+      }
+
+      visitExpressionStmt(stmt: Expression): string {
+        return this.parenthesize("expression", stmt.expression);
       }
 
       visitGroupingExpr(expr: Grouping): string {

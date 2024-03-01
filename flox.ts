@@ -3,7 +3,7 @@ import promptSync from 'prompt-sync'
 import fs from 'fs' 
 import Scanner from "./util/lexer/lexer";
 import Parser from "./util/parser/parser";
-import { Expr } from "./util/expressions/exp";
+import { Expr, Stmt } from "./util/expressions/exp";
 import AstPrinter from "./util/debug/astprinter";
 import Interpreter from "./util/interpreter/interpreter";
 
@@ -62,7 +62,7 @@ export default class Flox {
 
         var parser: Parser = new Parser(tokens);
 
-        var expression: Expr | null = parser.parse();
+        var expression: Stmt[] = parser.parse();
 
         if(expression == null) return;
 
@@ -70,8 +70,7 @@ export default class Flox {
 
         var interpreter: Interpreter = new Interpreter();
 
-        var evaluation = interpreter.interpret(expression);
+        interpreter.interpret(expression);
 
-        console.log(evaluation);
     };
 }
