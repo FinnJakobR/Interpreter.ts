@@ -1,7 +1,10 @@
-var x  = 10;
+var x = 10;
+var y = 2;
 
-print x;
-
-x+= 10;
-
-print x;
+if(x < y){
+    if(4 < 2){
+        print "HALLO";
+    }
+}else {
+    print "MOIN";
+}

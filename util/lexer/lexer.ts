@@ -64,11 +64,11 @@ export default class Scanner {
             case "=": 
                 this.addToken(this.check("=") ? TokenType.EQUAL_EQUAL : TokenType.EQUAL, null);
                 break;
-            case "<": 
+            case ">": 
                 this.addToken(this.check("=") ? TokenType.GREATER_EQUAL : TokenType.GREATER, null);
                 break;
             
-            case ">": 
+            case "<": 
                 this.addToken(this.check("=") ? TokenType.LESS_EQUAL : TokenType.LESS, null);
                 break;
             

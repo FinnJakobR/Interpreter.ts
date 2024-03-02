@@ -1,4 +1,4 @@
-import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign, Block } from "../expressions/exp";
+import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign, Block, If } from "../expressions/exp";
 
 export default class AstPrinter implements Visitor<string>{
     
@@ -38,6 +38,13 @@ export default class AstPrinter implements Visitor<string>{
 
       visitVariableExpr(expr: Variable): string {
           return expr.name.lexeme;
+      }
+
+      visitIfStmt(stmt: If): string {
+        var condition : string = this.parenthesize("condition", stmt.condition);
+        var thenBranch: string = this.parenthesize("then", stmt.thenBranch);
+        var elseBranch: string =  stmt.elseBranch ? this.parenthesize("else", stmt.elseBranch) : "(else null)";
+        return `(if ${condition} ${thenBranch} ${elseBranch})`;
       }
 
       visitBlockStmt(stmt: Block): string {

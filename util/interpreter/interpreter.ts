@@ -1,6 +1,6 @@
 
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import Enviroment from "../state/environment";
 
@@ -40,7 +40,7 @@ export default class Interpreter implements Visitor<Object | null>{
     private isTruthly(object : Object | null){
         
         if(object == null) return false;
-        if(object instanceof Boolean) return Boolean(object).valueOf();
+        if(typeof object === "boolean") return Boolean(object).valueOf();
         
         return true;
 
@@ -93,6 +93,16 @@ export default class Interpreter implements Visitor<Object | null>{
     public visitPrintStmt(stmt: Print): Object | null{
         var value:  Object | null = this.evaluate(stmt.expression);
         console.log(value);
+        return null;
+    }
+
+    visitIfStmt(stmt: If): Object | null {
+        if (this.isTruthly(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch);
+          } else if (stmt.elseBranch != null) {
+            this.execute(stmt.elseBranch);
+          }
+
         return null;
     }
 
