@@ -14,6 +14,7 @@ visitSlashAssignExpr( expr: SlashAssign) : R;
 visitBinaryExpr( expr: Binary) : R;
 visitGroupingExpr( expr: Grouping) : R;
 visitLiteralExpr( expr: Literal) : R;
+visitLogicalExpr( expr: Logical) : R;
 visitUnaryExpr( expr: Unary) : R;
 visitVariableExpr( expr: Variable) : R;
 }
@@ -119,6 +120,21 @@ export class Literal extends Expr{
         }}
 
 
+export class Logical extends Expr{
+    public left : Expr;
+    public operator : Token;
+    public right : Expr;
+    constructor ( left : Expr, operator : Token, right : Expr,){
+        super()
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitLogicalExpr(this);
+        }}
+
+
 export class Unary extends Expr{
     public operator : Token;
     public right : Expr;
@@ -153,6 +169,7 @@ visitExpressionStmt( stmt: Expression) : R;
 visitIfStmt( stmt: If) : R;
 visitPrintStmt( stmt: Print) : R;
 visitVarStmt( stmt: Var) : R;
+visitWhileStmt( stmt: While) : R;
 visitBlockStmt( stmt: Block) : R;
 }
 export class Expression extends Stmt{
@@ -202,6 +219,19 @@ export class Var extends Stmt{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitVarStmt(this);
+        }}
+
+
+export class While extends Stmt{
+    public condition : Expr;
+    public body : Stmt;
+    constructor ( condition : Expr, body : Stmt,){
+        super()
+        this.condition = condition;
+        this.body = body;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitWhileStmt(this);
         }}
 
 

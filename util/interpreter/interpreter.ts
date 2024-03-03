@@ -1,6 +1,6 @@
 
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import Enviroment from "../state/environment";
 
@@ -112,6 +112,15 @@ export default class Interpreter implements Visitor<Object | null>{
         return null;
     }
 
+    visitWhileStmt(stmt: While): Object | null {
+        
+        while(this.isTruthly(this.evaluate(stmt.condition))){
+            this.execute(stmt.body);
+        }
+
+        return null;
+    }
+
     visitVarStmt(stmt: Var): Object | null {
         var value : Object | null = null;
 
@@ -142,6 +151,19 @@ export default class Interpreter implements Visitor<Object | null>{
         
         return value;
 
+    }
+
+    public visitLogicalExpr(expr: Logical): Object | null {
+        var left: Object | null = this.evaluate(expr.left);
+
+        if(expr.operator.type == TokenType.OR){
+            if(this.isTruthly(left)) return left;
+
+        } else {
+            if(!this.isTruthly(left)) return left;
+        }
+
+        return this.evaluate(expr.right);
     }
 
     public visitPlusAssignExpr(expr: Assign): Object | null {

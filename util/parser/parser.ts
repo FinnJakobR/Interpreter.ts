@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
 
 class ParseError extends Error {
@@ -112,6 +112,7 @@ export default class Parser {
         if(this.match(TokenType.PRINT)) return this.printStatement();
         if(this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
         if(this.match(TokenType.IF)) return this.ifStatement();
+        if(this.match(TokenType.WHILE)) return this.whileStatement();
         return this.expressionStatement();
     
     }
@@ -127,6 +128,15 @@ export default class Parser {
         this.consume(TokenType.RIGHT_BRACE, "except '}' after block end!");
 
         return statements;
+    }
+
+    private whileStatement(): Stmt{
+        this.consume(TokenType.LEFT_PAREN, "expect ( after while keyword!");
+        var condition: Expr = this.expression();
+        this.consume(TokenType.RIGHT_PAREN, "expect ) after while condition!");
+        var body: Stmt = this.statement();
+
+        return new While(condition, body);
     }
 
     private ifStatement(): Stmt{
@@ -194,7 +204,7 @@ export default class Parser {
     }
 
     private assignment(): Expr {
-        var expr: Expr = this.equality();
+        var expr: Expr = this.or();
 
         if(this.match(TokenType.EQUAL)){
             var equals: Token = this.previous();
@@ -263,6 +273,33 @@ export default class Parser {
 
         return expr;
     }
+
+    private or(): Expr{
+        var expr: Expr = this.and();
+
+        while(this.match(TokenType.OR)){
+            var operator: Token = this.previous();
+            var right: Expr = this.and();
+            expr = new Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private and(): Expr{
+        var expr: Expr = this.equality();
+
+        while(this.match(TokenType.AND)){
+            var operator: Token = this.previous();
+            var right: Expr = this.equality();
+            expr = new Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+
+
     private equality(): Expr{
         var expr: Expr = this.comparison();
 

@@ -6,5 +6,6 @@ SlashAssign :Token name,Expr value
 Binary:Expr left,Token operator,Expr right
 Grouping :Expr expression
 Literal :Object|null value
+Logical: Expr left,Token operator,Expr right
 Unary :Token operator,Expr right
 Variable :Token name

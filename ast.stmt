@@ -2,4 +2,5 @@ Expression: Expr expression
 If: Expr condition,Stmt thenBranch,Stmt elseBranch
 Print: Expr expression
 Var: Token name,Expr|null initializer
+While: Expr condition,Stmt body
 Block: Stmt[] statements
