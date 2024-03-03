@@ -18,7 +18,7 @@ export default class Enviroment {
     public get(name: Token): Object | null {
         if(this.value.has(name.lexeme)) {
 
-            if(!this.value.get(name.lexeme)){
+            if(this.value.get(name.lexeme) === null){
                 throw runtimeError(name, "variable not assigned!");
             }
 

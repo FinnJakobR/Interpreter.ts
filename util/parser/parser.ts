@@ -112,6 +112,7 @@ export default class Parser {
         if(this.match(TokenType.PRINT)) return this.printStatement();
         if(this.match(TokenType.LEFT_BRACE)) return new Block(this.block());
         if(this.match(TokenType.IF)) return this.ifStatement();
+        if(this.match(TokenType.FOR)) return this.forStatement();
         if(this.match(TokenType.WHILE)) return this.whileStatement();
         return this.expressionStatement();
     
@@ -137,6 +138,55 @@ export default class Parser {
         var body: Stmt = this.statement();
 
         return new While(condition, body);
+    }
+
+    private forStatement(): Stmt {
+        this.consume(TokenType.LEFT_PAREN, "expect ( after for keyword!");
+
+        var initializer: Stmt | null; 
+
+        if(this.match(TokenType.SEMICOLON)) {
+            //like for(;;){}
+            initializer = null;
+        }else if(this.match(TokenType.VAR)){
+            initializer = this.varDeclaration();
+        }else {
+            initializer = this.expressionStatement();
+        }
+
+        var condition: Expr | null = null;
+
+        if(!this.match(TokenType.SEMICOLON)){
+            condition = this.expression();
+        }
+
+        this.consume(TokenType.SEMICOLON, "Expect ; after expression");
+
+
+        var increment: Expr | null = null;
+
+        if(!this.match(TokenType.RIGHT_PAREN)){
+            increment = this.expression();
+        }
+
+        this.consume(TokenType.RIGHT_PAREN, "Expect ) after for head!" );
+
+        var body: Stmt = this.statement();
+
+        if(increment != null){
+            body = new Block([increment, body]);
+        }
+
+        if(condition == null) condition = new Literal(true);
+
+        body = new While(condition, body);
+
+        if(initializer != null){
+            body = new Block([initializer, body]);
+        }
+
+        return body;
+
     }
 
     private ifStatement(): Stmt{

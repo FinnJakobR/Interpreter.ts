@@ -1,8 +1,10 @@
-var x = 10;
-var y = 10;
-while(x < 100 and y < 20){
-    x+=10;
-    y += 10;
-}
+var a = 0;
+var temp = 0;
 
-print x;
+var z;
+
+for (var b = 1; a < 10000; b = temp + b) {
+  print a;
+  temp = a;
+  a = b; 
+}
