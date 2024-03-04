@@ -6,6 +6,8 @@ import Parser from "./util/parser/parser";
 import { Expr, Stmt } from "./util/expressions/exp";
 import AstPrinter from "./util/debug/astprinter";
 import Interpreter from "./util/interpreter/interpreter";
+import path from "path" 
+import { staticError } from "./util/errors/error";
 
 export default class Flox {
     private hasError: boolean;
@@ -57,12 +59,18 @@ export default class Flox {
         }
     }
 
-    runFile(path: string): void {    
+    runFile(p: string): void {    
         
         //TODO add a fileExtension check
 
+        var fileExtension: string = path.extname(p);
+
+        if(fileExtension != ".flex"){
+            return staticError(-1, "given file is not a .flex file!");
+        }
+
         try {
-            var source: string = fs.readFileSync(path, {encoding: "utf-8"});
+            var source: string = fs.readFileSync(p, {encoding: "utf-8"});
             this.run(source);
         } catch (error) {
             console.log("File not Found!");
