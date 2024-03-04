@@ -1,4 +1,5 @@
 import { Token } from "../lexer/token";
+import JumpTable from "../state/jumptable";
 
 export abstract class Expr {
   abstract accept<R>(visitor: Visitor<R>): R;
@@ -170,7 +171,10 @@ visitIfStmt( stmt: If) : R;
 visitPrintStmt( stmt: Print) : R;
 visitVarStmt( stmt: Var) : R;
 visitWhileStmt( stmt: While) : R;
+visitBreakStmt( stmt: Break) : R;
+visitContinueStmt( stmt: Continue) : R;
 visitBlockStmt( stmt: Block) : R;
+visitSwitchStmt( stmt: Switch) : R;
 }
 export class Expression extends Stmt{
     public expression : Expr;
@@ -235,6 +239,28 @@ export class While extends Stmt{
         }}
 
 
+export class Break extends Stmt{
+    public name : Token;
+    constructor ( name : Token,){
+        super()
+        this.name = name;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitBreakStmt(this);
+        }}
+
+
+export class Continue extends Stmt{
+    public name : Token;
+    constructor ( name : Token,){
+        super()
+        this.name = name;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitContinueStmt(this);
+        }}
+
+
 export class Block extends Stmt{
     public statements : Stmt[];
     constructor ( statements : Stmt[],){
@@ -243,6 +269,19 @@ export class Block extends Stmt{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitBlockStmt(this);
+        }}
+
+
+export class Switch extends Stmt{
+    public rule : Expr;
+    public cases : JumpTable;
+    constructor ( rule : Expr, cases : JumpTable,){
+        super()
+        this.rule = rule;
+        this.cases = cases;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitSwitchStmt(this);
         }}
 
 

@@ -1,6 +1,7 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch } from "../expressions/exp";
 import { runtimeError } from "../errors/error";
+import JumpTable from "../state/jumptable";
 
 class ParseError extends Error {
     constructor(){
@@ -9,6 +10,18 @@ class ParseError extends Error {
 
 
 };
+
+export class BreakError extends Error {
+    constructor(){
+        super();
+    }
+}
+
+export class ContinueError extends Error {
+    constructor(){
+        super();
+    }
+} 
 
 export default class Parser {
 
@@ -114,6 +127,7 @@ export default class Parser {
         if(this.match(TokenType.IF)) return this.ifStatement();
         if(this.match(TokenType.FOR)) return this.forStatement();
         if(this.match(TokenType.WHILE)) return this.whileStatement();
+        if(this.match(TokenType.SWITCH)) return this.switchStatement();
         return this.expressionStatement();
     
     }
@@ -123,12 +137,49 @@ export default class Parser {
         var statements: (Stmt)[] = [];
 
         while(!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()){
-            statements.push(this.declarations());
+
+            if(this.match(TokenType.BREAK)) statements.push(this.break());
+            else if(this.match(TokenType.CONTINUE)) statements.push(this.continue());
+            else statements.push(this.declarations());
         }
 
         this.consume(TokenType.RIGHT_BRACE, "except '}' after block end!");
 
         return statements;
+    }
+
+    private caseBlock(): Stmt[] {
+        var statements: (Stmt)[] = [];
+        while(!this.check(TokenType.CASE) && !this.isAtEnd()){
+            if(this.match(TokenType.BREAK)) statements.push(this.break());
+            else if(this.match(TokenType.CONTINUE)) statements.push(this.continue());
+            else statements.push(this.statement());
+        }
+
+        return statements;
+    }
+
+    private switchStatement(): Stmt {
+        
+        var rule:  Expr = this.expression();
+        var case_table = new JumpTable();
+        this.consume(TokenType.DOUBLE_DOT, "expect : after switch expression");
+        //NOTE zuerst wollte ich jump tables nutzen das geht aber in diesem Fall nicht da expression und so evaluated werden müssen!
+
+        while(this.match(TokenType.CASE) && !this.isAtEnd()){
+            var case_expression: Expr = this.expression();
+            this.consume(TokenType.DOUBLE_DOT, "Exprect : after case expression");
+            
+            var case_statements: Stmt[] = this.caseBlock();
+
+
+            case_table.set(case_expression, case_statements);
+
+        }
+
+        return new Switch(rule, case_table);
+
+
     }
 
     private whileStatement(): Stmt{
@@ -187,6 +238,22 @@ export default class Parser {
 
         return body;
 
+    }
+
+    private break(): Stmt {
+        var name: Token = this.previous();
+
+        this.consume(TokenType.SEMICOLON, "expect ; after break statement!");
+
+        return new Break(name);
+    }
+
+    private continue(): Stmt {
+        var name: Token = this.previous();
+
+        this.consume(TokenType.SEMICOLON, "expect ; after break statement!");
+
+        return new Continue(name);
     }
 
     private ifStatement(): Stmt{
@@ -390,7 +457,7 @@ export default class Parser {
     private factor(): Expr {
         var expr: Expr = this.unary();
 
-        while(this.match(TokenType.SLASH, TokenType.STAR)){
+        while(this.match(TokenType.SLASH, TokenType.STAR, TokenType.MODULO)){
             var operator: Token = this.previous();
             var right = this.unary();
             expr = new Binary(expr, operator, right);

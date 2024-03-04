@@ -1,8 +1,11 @@
 
+import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
+import { BreakError, ContinueError } from "../parser/parser";
 import Enviroment from "../state/environment";
+import JumpTable from "../state/jumptable";
 
 export default class Interpreter implements Visitor<Object | null>{
 
@@ -95,6 +98,20 @@ export default class Interpreter implements Visitor<Object | null>{
         console.log(value);
         return null;
     }
+    
+    public visitBreakStmt(stmt: Break): Object | null {
+
+        if(stmt.name.type == TokenType.BREAK) throw new BreakError();
+        
+        return null;
+    }
+    
+    public visitContinueStmt(stmt: Continue): Object | null {
+        
+        if(stmt.name.type === TokenType.CONTINUE) throw new ContinueError();
+        
+        return null;
+    }
 
     visitIfStmt(stmt: If): Object | null {
         if (this.isTruthly(this.evaluate(stmt.condition))) {
@@ -115,7 +132,19 @@ export default class Interpreter implements Visitor<Object | null>{
     visitWhileStmt(stmt: While): Object | null {
         
         while(this.isTruthly(this.evaluate(stmt.condition))){
-            this.execute(stmt.body);
+            try {
+                this.execute(stmt.body);   
+            } catch (error) {
+             
+                if(error instanceof BreakError){
+                break;
+                }
+                if(error instanceof ContinueError) {
+                    continue;
+                }
+
+
+            }
         }
 
         return null;
@@ -183,6 +212,30 @@ export default class Interpreter implements Visitor<Object | null>{
         return value;
 
     }
+    
+    public visitSwitchStmt(stmt: Switch): Object | null {
+
+        var table: JumpTable = stmt.cases;
+    
+        for (let [key, value] of table){
+            var _case = this.evaluate(key);
+            if(this.isEqual(_case, this.evaluate(stmt.rule))){
+                for(var statement of value){
+                    try {
+                        this.execute(statement);
+                    } catch (error) {
+                        if(error instanceof BreakError){
+                            return null;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return null;
+    }
+
     public visitMinusAssignExpr(expr: MinusAssign): Object | null {
         var value: Object | null = this.evaluate(expr.value);
 
@@ -296,12 +349,16 @@ export default class Interpreter implements Visitor<Object | null>{
                 this.checkNumberOperands(expr.operator, left,right);
                 return <number>left <= <number>right;
 
-            case TokenType.BANG: {
-                return !this.isEqual(left, right);
+            case TokenType.BANG_EQUAL: {
+                return !this.isEqual(left,right);
             }
 
-            case TokenType.BANG_EQUAL: {
-                return this.isEqual(left,right);
+            case TokenType.EQUAL_EQUAL: {
+                return this.isEqual(left, right);
+            }
+
+            case TokenType.MODULO: {
+                return <number>left % <number>right;
             }
         }
 

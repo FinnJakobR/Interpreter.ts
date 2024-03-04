@@ -8,12 +8,21 @@ statement      → exprStmt
                | printStmt ;
                | whileStmt ;
                | block ;
+               | switchStmt;
+
+
+switchStmt →  "switch" expression :" caseStmt* 
+
+caseStmt       → "case" expression ":" statement ;
+ 
+breakStmt       → "break" ";";
+continueStmt    → "continue" ";";
 
 whileStmt      → "while" "(" expression ")" statement ;
 forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
                  expression? ";"
                  expression? ")" statement ;
-block          → "{" declaration* "}" ;
+block          → "{" declaration | breakStmt | continueStmt* "}" ;
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;

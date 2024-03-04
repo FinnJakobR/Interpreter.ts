@@ -1,4 +1,4 @@
-import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign, Block, If, While, Logical } from "../expressions/exp";
+import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Stmt } from "../expressions/exp";
 
 export default class AstPrinter implements Visitor<string>{
     
@@ -97,6 +97,19 @@ export default class AstPrinter implements Visitor<string>{
       visitLiteralExpr(expr: Literal): string {
           if(expr.value == null) return "nil";
           return expr.value.toString();
+      }
+
+      visitBreakStmt(stmt: Break): string {
+          return "break";
+      }
+
+      visitContinueStmt(stmt: Continue): string {
+          return "continue";
+      }
+
+      visitSwitchStmt(stmt: Switch): string {
+          return this.parenthesize("switch", stmt.rule);
+          
       }
 
       visitUnaryExpr(expr: Unary): string {

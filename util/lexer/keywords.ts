@@ -22,5 +22,9 @@ export const keywords : keywordHash = {
     "true": TokenType.TRUE,
     "var": TokenType.VAR,
     "while": TokenType.WHILE,
-    "maybe": TokenType.MAYBE
+    "maybe": TokenType.MAYBE,
+    "break": TokenType.BREAK,
+    "continue": TokenType.CONTINUE,
+    "case": TokenType.CASE,
+    "switch": TokenType.SWITCH
 };

@@ -43,7 +43,7 @@ export default class Scanner {
             case "}": this.addToken(TokenType.RIGHT_BRACE, null); break;
             case ",": this.addToken(TokenType.COMMA, null); break;
             case ".": this.addToken(TokenType.DOT, null); break;
-            
+            case ":": this.addToken(TokenType.DOUBLE_DOT,null); break;
             case "-":
                 this.addToken(this.check("=") ? TokenType.MINUS_EQUAL : TokenType.MINUS, null);
                 break;
@@ -94,9 +94,9 @@ export default class Scanner {
             case '"': 
                 this.lex_string();
                 break;
-
-            
-
+            case "%":
+                this.addToken(TokenType.MODULO,null)
+                break;
 
             default: 
                 if(this.isDigit(c)){

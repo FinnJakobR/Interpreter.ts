@@ -6,7 +6,7 @@ class GenerateAst {
     private types: string[];
     constructor(outputdir: string){
         this.outputdir = outputdir;
-        this.source = `import { Token } from "../lexer/token";\n\n`;
+        this.source = `import { Token } from "../lexer/token";\n\nimport JumpTable from "../state/jumptable";\n\n`;
         this.types = [];
     }
 
