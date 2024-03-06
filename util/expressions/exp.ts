@@ -1,4 +1,5 @@
 import { Token } from "../lexer/token";
+
 import JumpTable from "../state/jumptable";
 
 export abstract class Expr {
@@ -13,6 +14,7 @@ visitMinusAssignExpr( expr: MinusAssign) : R;
 visitStarAssignExpr( expr: StarAssign) : R;
 visitSlashAssignExpr( expr: SlashAssign) : R;
 visitBinaryExpr( expr: Binary) : R;
+visitCallExpr( expr: Call) : R;
 visitGroupingExpr( expr: Grouping) : R;
 visitLiteralExpr( expr: Literal) : R;
 visitLogicalExpr( expr: Logical) : R;
@@ -96,6 +98,21 @@ export class Binary extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitBinaryExpr(this);
+        }}
+
+
+export class Call extends Expr{
+    public callee : Expr;
+    public paren : Token;
+    public arguments : Expr[];
+    constructor ( callee : Expr, paren : Token, arguments : Expr[],){
+        super()
+        this.callee = callee;
+        this.paren = paren;
+        this.arguments = arguments;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitCallExpr(this);
         }}
 
 

@@ -1,6 +1,6 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch } from "../expressions/exp";
-import { runtimeError } from "../errors/error";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call } from "../expressions/exp";
+import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 
 class ParseError extends Error {
@@ -27,6 +27,7 @@ export default class Parser {
 
     private tokens: Token[];
     private current: number;
+    private max_args: number = 255; // like Java! 
 
     constructor(tokens: Token[]){
         this.tokens = tokens;
@@ -474,7 +475,41 @@ export default class Parser {
             return new Unary(operator, right);
         }
 
-        return this.primary();
+        return this.call();
+ 
+       }
+
+    private call(): Expr {
+        var expr: Expr = this.primary();
+        
+        while(true){
+            if(this.match(TokenType.LEFT_PAREN)){
+                expr = this.finishCall(expr);
+            }else{
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    private finishCall(callee: Expr) : Expr {
+        var args: Expr[] = [];
+
+        if(!this.check(TokenType.RIGHT_PAREN)){
+            do {
+
+                if(args.length >= this.max_args){
+                    runtimeError(this.peek(),`Cant have more than ${this.max_args} arguments`);
+                }
+                
+                args.push(this.expression());
+            } while(this.match(TokenType.COMMA));
+        }
+
+        var paren: Token = this.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments");
+
+        return new Call(callee, paren, args);
     }
 
     private primary(): Expr {

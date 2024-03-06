@@ -1,20 +1,28 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError } from "../parser/parser";
 import Enviroment from "../state/environment";
 import JumpTable from "../state/jumptable";
+import FloxCallable from "../state/callable";
+import ClockFunction from "../native_functions/function";
 
 export default class Interpreter implements Visitor<Object | null>{
 
+    private globals: Enviroment;
     private enviroment: Enviroment;
     private REPL?: boolean; 
 
     constructor(REPL?: boolean){
-        this.enviroment = new Enviroment();
+        this.globals = new Enviroment();
+        this.enviroment = this.globals;
         this.REPL = REPL ?? false;
+
+        this.globals.define("clock", new ClockFunction());
+
+
     };
 
     public interpret(statements: Stmt[]){
@@ -179,6 +187,34 @@ export default class Interpreter implements Visitor<Object | null>{
         this.enviroment.assign(expr.name, value);
         
         return value;
+
+    }
+    public visitCallExpr(expr: Call): Object | null {
+     
+        var callee: Object | null = this.evaluate(expr.callee);
+
+        if(!callee) return null;
+
+        var args: (Object | null)[] = [];
+
+        for(var arg of expr.arguments){
+            args.push(this.evaluate(arg));
+        }
+
+
+        if(!(callee instanceof FloxCallable)){
+            throw runtimeError(expr.paren, "Call only call functions and Classes!");
+        }
+
+        var func: FloxCallable = <FloxCallable>callee;
+
+        if(args.length != func.arity()){
+            throw runtimeError(expr.paren, "Expected " +
+            func.arity() + " arguments but got " +
+            arguments.length + ".")
+        }
+
+        return func.call(this, args);
 
     }
 
