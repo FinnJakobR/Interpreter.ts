@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 
@@ -154,7 +154,7 @@ export default class Parser {
         while(!this.check(TokenType.CASE) && !this.isAtEnd()){
             if(this.match(TokenType.BREAK)) statements.push(this.break());
             else if(this.match(TokenType.CONTINUE)) statements.push(this.continue());
-            else statements.push(this.statement());
+            else statements.push(this.declarations());
         }
 
         return statements;
@@ -277,6 +277,7 @@ export default class Parser {
 
     private declarations(): Stmt{
         try {
+            if(this.match(TokenType.FUN)) return this.functionDeclaration("function");
             if(this.match(TokenType.VAR)) return this.varDeclaration();
 
             return this.statement();
@@ -284,6 +285,34 @@ export default class Parser {
             this.synchronize();
             return this.statement();
         }
+    }
+
+    private functionDeclaration(kind: string): Stmt {
+        var name: Token = this.consume(TokenType.IDENTIFIER, "Expect " + kind + " name.");
+
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' after " + kind + " name.");
+
+        var paramters: Token[] = [];
+
+        if(!this.check(TokenType.RIGHT_PAREN)){
+            do {
+                if(paramters.length >= this.max_args){
+                    throw runtimeError(this.peek(),  "Can't have more than " + this.max_args + " parameters.")
+                }
+
+                paramters.push(this.consume(TokenType.IDENTIFIER, "Expect parameter name."));
+            } while(this.match(TokenType.COMMA))
+        }
+
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+        this.consume(TokenType.LEFT_BRACE,  "Expect '{' before " + kind + " body.");
+
+        var body: Stmt[] = this.block();
+
+        var f = new Function(name, paramters, body);
+
+        return f;
     }
 
     private varDeclaration(): Stmt{

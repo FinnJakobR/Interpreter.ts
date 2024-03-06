@@ -1,6 +1,7 @@
 program        → declaration* EOF ;
 
 declaration    → varDecl
+               | funcDecl
                | statement ;
 
 statement      → exprStmt
@@ -13,7 +14,13 @@ statement      → exprStmt
 
 switchStmt →  "switch" expression :" caseStmt* 
 
-caseStmt       → "case" expression ":" statement ;
+funcDecl → "func" function ;
+
+function → IDENTIFIER "("parameters ?")" block ;
+
+parameters → IDENTIFIER ( "," IDENTIFIER )* ; 
+
+caseStmt       → "case" expression ":" declaration ;
  
 breakStmt       → "break" ";";
 continueStmt    → "continue" ";";

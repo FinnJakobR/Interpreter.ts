@@ -1,17 +1,17 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError } from "../parser/parser";
 import Enviroment from "../state/environment";
 import JumpTable from "../state/jumptable";
 import FloxCallable from "../state/callable";
-import ClockFunction from "../native_functions/function";
+import ClockFunction, { FloxFunction } from "../native_functions/function";
 
 export default class Interpreter implements Visitor<Object | null>{
 
-    private globals: Enviroment;
+    public globals: Enviroment;
     private enviroment: Enviroment;
     private REPL?: boolean; 
 
@@ -121,6 +121,14 @@ export default class Interpreter implements Visitor<Object | null>{
         return null;
     }
 
+    visitFunctionStmt(stmt: Function): Object | null {
+        var func: FloxFunction = new FloxFunction(stmt);
+
+        this.enviroment.define(stmt.name.lexeme, func);
+
+        return null;
+    }
+
     visitIfStmt(stmt: If): Object | null {
         if (this.isTruthly(this.evaluate(stmt.condition))) {
             this.execute(stmt.thenBranch);
@@ -197,12 +205,12 @@ export default class Interpreter implements Visitor<Object | null>{
 
         var args: (Object | null)[] = [];
 
-        for(var arg of expr.arguments){
+        for(var arg of expr.args){
             args.push(this.evaluate(arg));
         }
 
 
-        if(!(callee instanceof FloxCallable)){
+        if(!(this.instanceOfCallable(callee))){
             throw runtimeError(expr.paren, "Call only call functions and Classes!");
         }
 
@@ -229,6 +237,10 @@ export default class Interpreter implements Visitor<Object | null>{
         }
 
         return this.evaluate(expr.right);
+    }
+
+    private instanceOfCallable(object: any): object is FloxCallable {
+        return "call" in object;
     }
 
     public visitPlusAssignExpr(expr: Assign): Object | null {

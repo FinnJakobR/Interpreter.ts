@@ -4,7 +4,7 @@ MinusAssign :Token name,Expr value
 StarAssign :Token name,Expr value
 SlashAssign :Token name,Expr value
 Binary:Expr left,Token operator,Expr right
-Call:Expr callee,Token paren,Expr[] arguments
+Call:Expr callee,Token paren,Expr[] args
 Grouping :Expr expression
 Literal :Object|null value
 Logical: Expr left,Token operator,Expr right

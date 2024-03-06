@@ -1,9 +1,5 @@
-var a = 0;
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + "!";
+}
 
-switch a + 1 :
-  case 1:
-    a+=1;
-    a+=2;
-    print "+1";
-  case 4: 
-    print "MOIN 2"; 
+sayHi("Dear", "Reader");

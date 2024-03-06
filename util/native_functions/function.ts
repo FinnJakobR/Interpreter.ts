@@ -1,5 +1,7 @@
+import { Function } from "../expressions/exp";
 import Interpreter from "../interpreter/interpreter";
 import FloxCallable from "../state/callable";
+import Enviroment from "../state/environment";
 
 
 export default class ClockFunction implements FloxCallable {
@@ -15,5 +17,30 @@ export default class ClockFunction implements FloxCallable {
 
     public toString(): string {
         return `<native fn>`;
+    }
+}
+
+export class FloxFunction implements FloxCallable {
+    private declaration: Function;
+
+    constructor(declaration: Function){
+        this.declaration = declaration;
+    }
+
+    public arity(): number {
+        return this.declaration.params.length;
+    }
+
+    public call(interpreter: Interpreter, args: (Object | null)[]): Object | null {
+        var enviroment : Enviroment = new Enviroment(interpreter.globals)
+        
+        for (var i = 0; i < this.declaration.params.length; i++) {
+            enviroment.define(this.declaration.params[i].lexeme,
+                arguments[i]);
+          }
+
+          interpreter.executeBlocks(this.declaration.body, enviroment);
+
+          return null;
     }
 }

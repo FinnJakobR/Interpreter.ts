@@ -104,12 +104,12 @@ export class Binary extends Expr{
 export class Call extends Expr{
     public callee : Expr;
     public paren : Token;
-    public arguments : Expr[];
-    constructor ( callee : Expr, paren : Token, arguments : Expr[],){
+    public args : Expr[];
+    constructor ( callee : Expr, paren : Token, args : Expr[],){
         super()
         this.callee = callee;
         this.paren = paren;
-        this.arguments = arguments;
+        this.args = args;
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitCallExpr(this);
@@ -184,6 +184,7 @@ export abstract class Stmt {
 
  export interface Visitor <R> {
 visitExpressionStmt( stmt: Expression) : R;
+visitFunctionStmt( stmt: Function) : R;
 visitIfStmt( stmt: If) : R;
 visitPrintStmt( stmt: Print) : R;
 visitVarStmt( stmt: Var) : R;
@@ -201,6 +202,21 @@ export class Expression extends Stmt{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitExpressionStmt(this);
+        }}
+
+
+export class Function extends Stmt{
+    public name : Token;
+    public params : Token[];
+    public body : Stmt[];
+    constructor ( name : Token, params : Token[], body : Stmt[],){
+        super()
+        this.name = name;
+        this.params = params;
+        this.body = body;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitFunctionStmt(this);
         }}
 
 

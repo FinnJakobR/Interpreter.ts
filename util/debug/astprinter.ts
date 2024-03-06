@@ -1,4 +1,4 @@
-import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Stmt } from "../expressions/exp";
+import { Visitor, Expr, Binary, Grouping, Literal, Unary, Print, Expression, Var, Variable, Assign, MinusAssign, PlusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Stmt, Call, Function } from "../expressions/exp";
 
 export default class AstPrinter implements Visitor<string>{
     
@@ -38,6 +38,14 @@ export default class AstPrinter implements Visitor<string>{
 
       visitVariableExpr(expr: Variable): string {
           return expr.name.lexeme;
+      }
+
+      visitCallExpr(expr: Call): string {
+          return "call";
+      }
+      
+      visitFunctionStmt(stmt: Function): string {
+          return "function";
       }
 
       visitIfStmt(stmt: If): string {
