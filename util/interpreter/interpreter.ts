@@ -1,9 +1,9 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
-import { BreakError, ContinueError } from "../parser/parser";
+import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
 import JumpTable from "../state/jumptable";
 import FloxCallable from "../state/callable";
@@ -127,6 +127,17 @@ export default class Interpreter implements Visitor<Object | null>{
         this.enviroment.define(stmt.name.lexeme, func);
 
         return null;
+
+    }
+
+    visitReturnStmt(stmt: Return): Object | null {
+        var value = null;
+
+        if(stmt.value){
+            value = this.evaluate(stmt.value);
+        }
+
+        throw new ReturnError(value);
     }
 
     visitIfStmt(stmt: If): Object | null {

@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 
@@ -22,6 +22,16 @@ export class ContinueError extends Error {
         super();
     }
 } 
+
+
+export class ReturnError extends Error {
+    public value: object | null;
+
+    constructor(value: object | null){
+        super();
+        this.value = value;
+    }
+}
 
 export default class Parser {
 
@@ -129,8 +139,23 @@ export default class Parser {
         if(this.match(TokenType.FOR)) return this.forStatement();
         if(this.match(TokenType.WHILE)) return this.whileStatement();
         if(this.match(TokenType.SWITCH)) return this.switchStatement();
+        if(this.match(TokenType.RETURN)) return this.ReturnStatement();
         return this.expressionStatement();
     
+    }
+
+
+    private ReturnStatement() : Stmt{
+        var keyWord: Token = this.previous();
+        var value = null;
+
+        if(!this.check(TokenType.SEMICOLON)){
+            value = this.expression();
+        }
+
+        this.consume(TokenType.SEMICOLON, "Expect ; after function return");
+
+        return new Return(keyWord, value);
     }
 
     private block(): (Stmt)[]{

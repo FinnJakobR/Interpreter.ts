@@ -3,7 +3,6 @@
 
 
 import Flox from "./flox";
-import AstPrinter from "./util/debug/astprinter";
 import { Binary, Expr, Unary, Grouping, Literal } from "./util/expressions/exp";
 import { Token, TokenType } from "./util/lexer/token";
 

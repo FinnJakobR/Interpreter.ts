@@ -1,5 +1,6 @@
 import { Function } from "../expressions/exp";
 import Interpreter from "../interpreter/interpreter";
+import { ReturnError } from "../parser/parser";
 import FloxCallable from "../state/callable";
 import Enviroment from "../state/environment";
 
@@ -36,10 +37,19 @@ export class FloxFunction implements FloxCallable {
         
         for (var i = 0; i < this.declaration.params.length; i++) {
             enviroment.define(this.declaration.params[i].lexeme,
-                arguments[i]);
+                args[i]);
           }
 
-          interpreter.executeBlocks(this.declaration.body, enviroment);
+          try {
+            interpreter.executeBlocks(this.declaration.body, enviroment);
+
+          } catch(error){
+            if(error instanceof ReturnError){
+                return error.value;
+            }
+          }
+
+
 
           return null;
     }

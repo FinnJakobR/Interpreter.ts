@@ -4,7 +4,6 @@ import fs from 'fs'
 import Scanner from "./util/lexer/lexer";
 import Parser from "./util/parser/parser";
 import { Expr, Stmt } from "./util/expressions/exp";
-import AstPrinter from "./util/debug/astprinter";
 import Interpreter from "./util/interpreter/interpreter";
 import path from "path" 
 import { staticError } from "./util/errors/error";
