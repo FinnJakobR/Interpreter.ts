@@ -23,9 +23,11 @@ export default class ClockFunction implements FloxCallable {
 
 export class FloxFunction implements FloxCallable {
     private declaration: Function;
+    private closure: Enviroment;
 
-    constructor(declaration: Function){
+    constructor(declaration: Function, closure: Enviroment){
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     public arity(): number {
@@ -33,8 +35,8 @@ export class FloxFunction implements FloxCallable {
     }
 
     public call(interpreter: Interpreter, args: (Object | null)[]): Object | null {
-        var enviroment : Enviroment = new Enviroment(interpreter.globals)
-        
+        var enviroment : Enviroment = new Enviroment(this.closure)
+
         for (var i = 0; i < this.declaration.params.length; i++) {
             enviroment.define(this.declaration.params[i].lexeme,
                 args[i]);

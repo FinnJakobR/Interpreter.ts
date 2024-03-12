@@ -122,7 +122,7 @@ export default class Interpreter implements Visitor<Object | null>{
     }
 
     visitFunctionStmt(stmt: Function): Object | null {
-        var func: FloxFunction = new FloxFunction(stmt);
+        var func: FloxFunction = new FloxFunction(stmt, this.enviroment);
 
         this.enviroment.define(stmt.name.lexeme, func);
 

@@ -1,16 +1,11 @@
-fun sayHi() {
-  var x = 10;
-
-  while(x < 100) {
-
-    if(x == 50) {
-      break;
-    }
-
-    x+=1;
+fun thrice(fn) {
+  for (var i = 1; i <= 3; i = i + 1) {
+    fn(i);
   }
-
-  return x;
 }
 
-print sayHi();
+fun x (a) {
+  print a;
+}
+
+thrice(x);
