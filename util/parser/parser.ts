@@ -251,7 +251,7 @@ export default class Parser {
         var body: Stmt = this.statement();
 
         if(increment != null){
-            body = new Block([increment, body]);
+            body = new Block([body, increment]);
         }
 
         if(condition == null) condition = new Literal(true);
@@ -565,6 +565,18 @@ export default class Parser {
 
         return new Call(callee, paren, args);
     }
+
+    private funcExpression(): Expr {
+        
+        if(this.match(TokenType.FUN)){
+
+        }
+
+        return this.expression();
+    }
+
+
+
 
     private primary(): Expr {
 
