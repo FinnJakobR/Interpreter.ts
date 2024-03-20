@@ -1,16 +1,8 @@
-fun thrice(fn) {
-  for (var i = 1; i <= 3; i = i + 1) {
-    fn(i);
-  }
-}
-
-thrice(
-  fun (a) {
-  
-  switch (a) :
+   var a = 1;
+   
+   switch (a) :
     case 1 : {
         print "a One";
-        break;
     }
 
     case 2 : {
@@ -18,4 +10,9 @@ thrice(
       break;
     }
 
-});
+    default: {
+      var z = 100;
+      print z + 2;
+    }
+
+

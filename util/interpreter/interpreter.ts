@@ -289,7 +289,24 @@ export default class Interpreter implements Visitor<Object | null>{
                     }
                 }
             }
+        }
 
+
+        
+
+        if(table.hasDefault()){
+
+            var statements = table.getDefault();
+
+            for(var statement of statements){
+                try {
+                    this.execute(statement);
+                } catch (error) {
+                    if(error instanceof BreakError){
+                        return null;
+                    }
+                }
+            }
         }
 
         return null;

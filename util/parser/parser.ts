@@ -183,19 +183,32 @@ export default class Parser {
         this.consume(TokenType.DOUBLE_DOT, "expect : after switch expression");
         //NOTE zuerst wollte ich jump tables nutzen das geht aber in diesem Fall nicht da expression und so evaluated werden müssen!
 
-        while(this.match(TokenType.CASE) && !this.isAtEnd()){
-            var case_expression: Expr = this.expression();
-            this.consume(TokenType.DOUBLE_DOT, "Exprect : after case expression");
+        while((this.match(TokenType.CASE) || this.match(TokenType.DEFAULT)) && !this.isAtEnd()){
             
-            this.consume(TokenType.LEFT_BRACE, "Expect open Block { after case Statement!");
-            var case_statements: Stmt[] = this.block();
+            if(this.previous().type == TokenType.CASE){
+                var case_expression: Expr = this.expression();
+                this.consume(TokenType.DOUBLE_DOT, "Exprect : after case expression");
+                
+                this.consume(TokenType.LEFT_BRACE, "Expect open Block { after case Statement!");
+                var case_statements: Stmt[] = this.block();
+    
+    
+                case_table.set(case_expression, case_statements);
+            }
 
-
-            case_table.set(case_expression, case_statements);
+            else if(this.previous().type === TokenType.DEFAULT){
+    
+                var case_expression: Expr = new Literal("default");
+                this.consume(TokenType.DOUBLE_DOT, "Exprect : after case expression");
+                
+                this.consume(TokenType.LEFT_BRACE, "Expect open Block { after case Statement!");
+                var case_statements: Stmt[] = this.block();
+    
+    
+                case_table.set(case_expression, case_statements);
+            }
 
         }
-
-        console.log(this.peek());
     
 
         return new Switch(rule, case_table);
