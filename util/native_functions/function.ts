@@ -1,4 +1,4 @@
-import { Function } from "../expressions/exp";
+import { Function, LambdaFunction } from "../expressions/exp";
 import Interpreter from "../interpreter/interpreter";
 import { ReturnError } from "../parser/parser";
 import FloxCallable from "../state/callable";
@@ -22,10 +22,10 @@ export default class ClockFunction implements FloxCallable {
 }
 
 export class FloxFunction implements FloxCallable {
-    private declaration: Function;
+    private declaration: Function | LambdaFunction;
     private closure: Enviroment;
 
-    constructor(declaration: Function, closure: Enviroment){
+    constructor(declaration: Function | LambdaFunction, closure: Enviroment){
         this.declaration = declaration;
         this.closure = closure;
     }

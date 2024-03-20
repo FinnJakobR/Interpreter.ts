@@ -16,6 +16,7 @@ visitSlashAssignExpr( expr: SlashAssign) : R;
 visitBinaryExpr( expr: Binary) : R;
 visitCallExpr( expr: Call) : R;
 visitGroupingExpr( expr: Grouping) : R;
+visitLambdaFunctionExpr( expr: LambdaFunction) : R;
 visitLiteralExpr( expr: Literal) : R;
 visitLogicalExpr( expr: Logical) : R;
 visitUnaryExpr( expr: Unary) : R;
@@ -124,6 +125,19 @@ export class Grouping extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitGroupingExpr(this);
+        }}
+
+
+export class LambdaFunction extends Expr{
+    public params : Token[];
+    public body : Stmt[];
+    constructor ( params : Token[], body : Stmt[],){
+        super()
+        this.params = params;
+        this.body = body;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitLambdaFunctionExpr(this);
         }}
 
 

@@ -2,17 +2,18 @@ program        → declaration* EOF ;
 
 declaration    → varDecl
                | funcDecl
-               | statement ;
+               | statement 
+               | switchStmt ;
+               
 
 statement      → exprStmt
                | forStmt ;
                | printStmt ;
                | whileStmt ;
                | block ;
-               | switchStmt;
-
 
 switchStmt →  "switch" expression :" caseStmt* 
+
 
 funcDecl → "func" function ;
 
@@ -34,6 +35,9 @@ exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
+lambda         → "func" lambda function 
+lambdaFunction → IDENTIFIER "("parameters ?")" block
+
 expression     → assignment ;
 assignment     → IDENTIFIER "=" assignment
                | logic_or ;
@@ -44,7 +48,7 @@ comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary | call ;
-call           → primary ("(" ")")
-               | primary ;
+call           → primary ("(" arguments? ")")* ;
+arguments      → (expression | lambda) ( "," (expression | lambda) )* ;
 primary        → NUMBER | STRING | "true" | "false" | "nil"
                | "(" expression ")" ;

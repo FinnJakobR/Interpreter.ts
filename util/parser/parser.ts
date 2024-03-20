@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 
@@ -138,11 +138,11 @@ export default class Parser {
         if(this.match(TokenType.IF)) return this.ifStatement();
         if(this.match(TokenType.FOR)) return this.forStatement();
         if(this.match(TokenType.WHILE)) return this.whileStatement();
-        if(this.match(TokenType.SWITCH)) return this.switchStatement();
         if(this.match(TokenType.RETURN)) return this.ReturnStatement();
         return this.expressionStatement();
     
     }
+
 
 
     private ReturnStatement() : Stmt{
@@ -174,20 +174,11 @@ export default class Parser {
         return statements;
     }
 
-    private caseBlock(): Stmt[] {
-        var statements: (Stmt)[] = [];
-        while(!this.check(TokenType.CASE) && !this.isAtEnd()){
-            if(this.match(TokenType.BREAK)) statements.push(this.break());
-            else if(this.match(TokenType.CONTINUE)) statements.push(this.continue());
-            else statements.push(this.declarations());
-        }
-
-        return statements;
-    }
-
     private switchStatement(): Stmt {
         
+    
         var rule:  Expr = this.expression();
+
         var case_table = new JumpTable();
         this.consume(TokenType.DOUBLE_DOT, "expect : after switch expression");
         //NOTE zuerst wollte ich jump tables nutzen das geht aber in diesem Fall nicht da expression und so evaluated werden müssen!
@@ -196,12 +187,16 @@ export default class Parser {
             var case_expression: Expr = this.expression();
             this.consume(TokenType.DOUBLE_DOT, "Exprect : after case expression");
             
-            var case_statements: Stmt[] = this.caseBlock();
+            this.consume(TokenType.LEFT_BRACE, "Expect open Block { after case Statement!");
+            var case_statements: Stmt[] = this.block();
 
 
             case_table.set(case_expression, case_statements);
 
         }
+
+        console.log(this.peek());
+    
 
         return new Switch(rule, case_table);
 
@@ -304,6 +299,9 @@ export default class Parser {
         try {
             if(this.match(TokenType.FUN)) return this.functionDeclaration("function");
             if(this.match(TokenType.VAR)) return this.varDeclaration();
+            if(this.match(TokenType.SWITCH)) {
+                return this.switchStatement()
+            };
 
             return this.statement();
         } catch (error) {
@@ -547,6 +545,36 @@ export default class Parser {
         return expr;
     }
 
+    lambda(): Expr {
+        
+        if(this.match(TokenType.IDENTIFIER)){
+            runtimeError(this.peek(), "Lambda cant have a name!");
+        }
+
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' ");
+
+        var paramters: Token[] = [];
+
+        if(!this.check(TokenType.RIGHT_PAREN)){
+            do {
+                if(paramters.length >= this.max_args){
+                    throw runtimeError(this.peek(),  "Can't have more than " + this.max_args + " parameters.")
+                }
+
+                paramters.push(this.consume(TokenType.IDENTIFIER, "Expect parameter name."));
+            } while(this.match(TokenType.COMMA))
+        }
+
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+        this.consume(TokenType.LEFT_BRACE,  "Expect '{' before body!");
+
+        var body: Stmt[] = this.block();
+
+        return new LambdaFunction(paramters, body);
+
+    }
+
     private finishCall(callee: Expr) : Expr {
         var args: Expr[] = [];
 
@@ -556,8 +584,11 @@ export default class Parser {
                 if(args.length >= this.max_args){
                     runtimeError(this.peek(),`Cant have more than ${this.max_args} arguments`);
                 }
-                
-                args.push(this.expression());
+                if(this.match(TokenType.FUN)){
+                    args.push(this.lambda());
+                }else {
+                    args.push(this.expression());
+                }
             } while(this.match(TokenType.COMMA));
         }
 
@@ -566,14 +597,6 @@ export default class Parser {
         return new Call(callee, paren, args);
     }
 
-    private funcExpression(): Expr {
-        
-        if(this.match(TokenType.FUN)){
-
-        }
-
-        return this.expression();
-    }
 
 
 

@@ -1,11 +1,21 @@
 fun thrice(fn) {
   for (var i = 1; i <= 3; i = i + 1) {
-      print i;
+    fn(i);
   }
 }
 
-fun x (a) {
-  print a;
-}
+thrice(
+  fun (a) {
+  
+  switch (a) :
+    case 1 : {
+        print "a One";
+        break;
+    }
 
-thrice(x);
+    case 2 : {
+      print "a Two";
+      break;
+    }
+
+});

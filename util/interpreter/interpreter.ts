@@ -1,7 +1,7 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
@@ -361,6 +361,13 @@ export default class Interpreter implements Visitor<Object | null>{
         }
 
         return null;
+    }
+
+
+    visitLambdaFunctionExpr(expr: LambdaFunction): Object | null {
+        var func: FloxFunction = new FloxFunction(expr, this.enviroment);
+
+        return func;
     }
 
     visitBinaryExpr(expr: Binary): Object | null {

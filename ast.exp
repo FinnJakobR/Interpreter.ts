@@ -6,6 +6,7 @@ SlashAssign :Token name,Expr value
 Binary:Expr left,Token operator,Expr right
 Call:Expr callee,Token paren,Expr[] args
 Grouping :Expr expression
+LambdaFunction: Token[] params,Stmt[] body
 Literal :Object|null value
 Logical: Expr left,Token operator,Expr right
 Unary :Token operator,Expr right
