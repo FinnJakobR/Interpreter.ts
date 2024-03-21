@@ -104,6 +104,19 @@ export default class Interpreter implements Visitor<Object | null>{
 
     public visitPrintStmt(stmt: Print): Object | null{
         var value:  Object | null = this.evaluate(stmt.expression);
+
+        if(value instanceof FloxArrayTable){
+            console.log("[")
+            
+            for(var [index, element] of value){
+                console.log("index: " + index + ":" , this.evaluate(element) + ",");
+            }
+
+            console.log("]");
+
+            return null;
+        }
+
         console.log(value);
         return null;
     }
