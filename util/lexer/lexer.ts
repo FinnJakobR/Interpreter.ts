@@ -94,6 +94,9 @@ export default class Scanner {
             case '"': 
                 this.lex_string();
                 break;
+            case `'`: 
+                this.lex_multilinestring();
+                break;
             case "%":
                 this.addToken(TokenType.MODULO,null)
                 break;
@@ -139,12 +142,11 @@ export default class Scanner {
     }
 
     private lex_string(){
-        while(this.peek() != '"' && !this.isAtEnd()){
-            if(this.peek() == "\n") this.line ++;
+        while(this.peek() != '"' && this.peek() != "\n"){
             this.advance();
         }
 
-        if(this.isAtEnd()){
+        if(this.isAtEnd() || this.peek() == "\n"){
             staticError(this.line, "unterminated string!");
             return;
         }
@@ -154,6 +156,23 @@ export default class Scanner {
         var value: string = this.source.substring(this.start + 1, this.current - 1);
         this.addToken(TokenType.STRING, value);
 
+    }
+
+    private lex_multilinestring(): void{
+        while(this.peek() != `'` && !this.isAtEnd()){
+            if(this.peek() == "\n") this.line ++;
+            this.advance();
+        }
+
+        if(this.isAtEnd()){
+            staticError(this.line, "unterminated string!");
+            return;
+        }
+
+        this.advance(); // for closing `'`
+
+        var value: string = this.source.substring(this.start + 1, this.current - 1);
+        this.addToken(TokenType.STRING, value);
     }
 
     isDigit(c: string){
