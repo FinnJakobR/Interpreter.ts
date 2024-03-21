@@ -97,6 +97,12 @@ export default class Scanner {
             case `'`: 
                 this.lex_multilinestring();
                 break;
+            case '`':
+                this.addToken(TokenType.BACKTICK, null);
+                break;
+            case "$":
+                this.addToken(TokenType.DOLLAR, null);
+                break;
             case "%":
                 this.addToken(TokenType.MODULO,null)
                 break;
@@ -174,6 +180,7 @@ export default class Scanner {
         var value: string = this.source.substring(this.start + 1, this.current - 1);
         this.addToken(TokenType.STRING, value);
     }
+
 
     isDigit(c: string){
         return c >= '0' && c <= '9';

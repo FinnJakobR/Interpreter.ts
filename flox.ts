@@ -91,7 +91,7 @@ export default class Flox {
 
         if(expression == null) return;
 
-        //console.log(new AstPrinter().print(expression));
+        // //console.log(new AstPrinter().print(expression));
 
         var interpreter: Interpreter = new Interpreter();
 

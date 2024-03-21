@@ -1,7 +1,7 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
@@ -339,6 +339,18 @@ export default class Interpreter implements Visitor<Object | null>{
         this.enviroment.assign(expr.name, value);
 
         return value;
+    }
+
+    public visitTemplateExpr(expr: Template): Object | null {
+        var string = "";
+
+        for(var exp of expr.blocks){
+           string += this.evaluate(exp);
+
+        }
+
+        return string;
+        
     }
 
     public visitStarAssignExpr(expr: StarAssign): Object | null {

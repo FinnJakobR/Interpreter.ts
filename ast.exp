@@ -8,6 +8,7 @@ Call:Expr callee,Token paren,Expr[] args
 Grouping :Expr expression
 LambdaFunction: Token[] params,Stmt[] body
 Literal :Object|null value
+Template:Expr[] blocks
 Logical: Expr left,Token operator,Expr right
 Unary :Token operator,Expr right
 Variable :Token name

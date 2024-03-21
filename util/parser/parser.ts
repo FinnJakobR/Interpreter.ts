@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 
@@ -620,6 +620,7 @@ export default class Parser {
         if(this.match(TokenType.FALSE)) return new Literal(false);
         if(this.match(TokenType.NIL)) return new Literal(null);
         if(this.match(TokenType.MAYBE)) return new Literal(Math.random() < 0.5);
+        if(this.match(TokenType.BACKTICK)) return this.template();
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Literal(this.previous().literal);
@@ -636,6 +637,41 @@ export default class Parser {
         }
 
         throw this.RuntimeError(this.peek(), "Expect expression.");
+    }
+
+    template(): Expr {
+
+        var items: Expr[] = [];
+
+        while(!this.check(TokenType.BACKTICK) && !this.isAtEnd()){
+            if(this.check(TokenType.DOLLAR)){
+                this.advance();
+
+                if(!this.check(TokenType.LEFT_BRACE)){
+                    items.push(new Literal(this.peek().lexeme));
+                    continue;
+                }
+
+                this.advance();
+
+                while(!this.check(TokenType.BACKTICK) && !this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()){
+                    items.push(this.expression());
+                }
+
+                this.consume(TokenType.RIGHT_BRACE, "unterminated { in String Template!");
+
+                continue;
+
+            }else{
+                items.push(new Literal(this.peek().lexeme));
+            }
+
+            this.advance();
+        }
+
+        this.consume(TokenType.BACKTICK, "unterminated String template!");
+        
+        return new Template(items);
     }
 
 

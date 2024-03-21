@@ -18,6 +18,7 @@ visitCallExpr( expr: Call) : R;
 visitGroupingExpr( expr: Grouping) : R;
 visitLambdaFunctionExpr( expr: LambdaFunction) : R;
 visitLiteralExpr( expr: Literal) : R;
+visitTemplateExpr( expr: Template) : R;
 visitLogicalExpr( expr: Logical) : R;
 visitUnaryExpr( expr: Unary) : R;
 visitVariableExpr( expr: Variable) : R;
@@ -149,6 +150,17 @@ export class Literal extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitLiteralExpr(this);
+        }}
+
+
+export class Template extends Expr{
+    public blocks : Expr[];
+    constructor ( blocks : Expr[],){
+        super()
+        this.blocks = blocks;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitTemplateExpr(this);
         }}
 
 
