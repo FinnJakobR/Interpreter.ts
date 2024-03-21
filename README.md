@@ -3,7 +3,7 @@
 
 
 # Syntax 
-``èbnf
+```ebnf
 program        → declaration* EOF ;
 
 declaration    → varDecl
