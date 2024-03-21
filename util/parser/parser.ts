@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, MinusAssign, PlusAssign, Print, SlashAssign, StarAssign, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 
@@ -544,9 +544,21 @@ export default class Parser {
  
        }
 
+
     private call(): Expr {
         var expr: Expr = this.primary();
         
+
+        if(this.match(TokenType.LEFT_BRACKET)){
+            var paren_token: Token = this.peek();
+            var index: Expr = this.expression();
+
+            this.consume(TokenType.RIGHT_BRACKET, "Expect closed Array Index Notation!");
+
+            return new ArrayCall(paren_token, expr, index);
+        }
+
+
         while(true){
             if(this.match(TokenType.LEFT_PAREN)){
                 expr = this.finishCall(expr);
@@ -621,6 +633,7 @@ export default class Parser {
         if(this.match(TokenType.NIL)) return new Literal(null);
         if(this.match(TokenType.MAYBE)) return new Literal(Math.random() < 0.5);
         if(this.match(TokenType.BACKTICK)) return this.template();
+        if(this.match(TokenType.LEFT_BRACKET)) return this.array();
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Literal(this.previous().literal);
@@ -637,6 +650,19 @@ export default class Parser {
         }
 
         throw this.RuntimeError(this.peek(), "Expect expression.");
+    }
+
+    array(): Expr {
+        
+        var elements: Expr[] = [];
+        if(!this.check(TokenType.RIGHT_BRACKET)){
+            do {
+                elements.push(this.expression());
+            } while(this.match(TokenType.COMMA));
+        }
+        this.consume(TokenType.RIGHT_BRACKET, "Expect Closed Array!");
+
+        return new Array(elements);
     }
 
     template(): Expr {

@@ -47,9 +47,10 @@ equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
-unary          → ( "!" | "-" ) unary | call ;
+unary          → ( "!" | "-" ) unary | call | ArrayCall ;
+ArrayCall      → primary "[" NUMBER "]" ;
 call           → primary ("(" arguments? ")")* ;
 arguments      → (expression | lambda) ( "," (expression | lambda) )* ;
-primary        → NUMBER | STRING | "true" | "false" | "nil" | Template
+primary        → NUMBER | STRING | "true" | "false" | "nil" | Template | Array  | "(" expression ")" ;
 Template       → "`" (IDENTIFIER | ("$" "{" expression "}"))* " "`""
-               | "(" expression ")" ;
+Array        →  "[" primary ( "," primary )* "]" ;

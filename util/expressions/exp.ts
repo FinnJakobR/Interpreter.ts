@@ -21,6 +21,8 @@ visitLiteralExpr( expr: Literal) : R;
 visitTemplateExpr( expr: Template) : R;
 visitLogicalExpr( expr: Logical) : R;
 visitUnaryExpr( expr: Unary) : R;
+visitArrayExpr( expr: Array) : R;
+visitArrayCallExpr( expr: ArrayCall) : R;
 visitVariableExpr( expr: Variable) : R;
 }
 export class Assign extends Expr{
@@ -189,6 +191,32 @@ export class Unary extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitUnaryExpr(this);
+        }}
+
+
+export class Array extends Expr{
+    public elements : Expr[];
+    constructor ( elements : Expr[],){
+        super()
+        this.elements = elements;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitArrayExpr(this);
+        }}
+
+
+export class ArrayCall extends Expr{
+    public paren : Token;
+    public expr_paren : Expr;
+    public index : Expr;
+    constructor ( paren : Token, expr_paren : Expr, index : Expr,){
+        super()
+        this.paren = paren;
+        this.expr_paren = expr_paren;
+        this.index = index;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitArrayCallExpr(this);
         }}
 
 

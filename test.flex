@@ -1,8 +1,3 @@
+var x = [1, "MOIN", 10];
 
-fun x () {
-  return 2 * 2;
-}
-
-var z = `10 * $ wdjjadja = 20`;
-
-print z;
+print `x = ${x[1]}`;

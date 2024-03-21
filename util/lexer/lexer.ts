@@ -40,6 +40,8 @@ export default class Scanner {
             case "(": this.addToken(TokenType.LEFT_PAREN, null); break;
             case ")": this.addToken(TokenType.RIGHT_PAREN, null); break;
             case "{": this.addToken(TokenType.LEFT_BRACE, null); break;
+            case "[": this.addToken(TokenType.LEFT_BRACKET, null); break;
+            case "]": this.addToken(TokenType.RIGHT_BRACKET, null); break;
             case "}": this.addToken(TokenType.RIGHT_BRACE, null); break;
             case ",": this.addToken(TokenType.COMMA, null); break;
             case ".": this.addToken(TokenType.DOT, null); break;

@@ -1,13 +1,14 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
 import JumpTable from "../state/jumptable";
 import FloxCallable from "../state/callable";
 import ClockFunction, { FloxFunction } from "../native_functions/function";
+import FloxArrayTable from "../state/array";
 
 export default class Interpreter implements Visitor<Object | null>{
 
@@ -235,6 +236,42 @@ export default class Interpreter implements Visitor<Object | null>{
 
         return func.call(this, args);
 
+    }
+
+    public visitArrayExpr(expr: Array): Object | null {
+        var arr_obj: FloxArrayTable = new FloxArrayTable();
+        
+        var index: number = 0;
+
+        for(var ele of expr.elements){
+            arr_obj.set(index, ele);
+            index++;
+        }
+
+        return arr_obj;
+    }
+
+    public visitArrayCallExpr(expr: ArrayCall): Object | null {
+        var evaluated_paren = this.evaluate(expr.expr_paren);
+        var evaluated_index = this.evaluate(expr.index);
+
+        if( typeof evaluated_index != "number") throw runtimeError(expr.paren, "Cannot index with non-int value!");
+
+        if(!evaluated_paren) throw runtimeError(expr.paren, "Cannot index nil!");
+
+        if(typeof evaluated_paren === "number") throw runtimeError(expr.paren, "Cannot index at a number!");
+
+        
+        if(typeof evaluated_paren === "string") {
+            return evaluated_paren[evaluated_index!] ?? "nil";
+        }
+
+        if(evaluated_paren instanceof FloxArrayTable){
+            return this.evaluate(evaluated_paren.get(evaluated_index!) ?? new Literal("nil"));
+
+        }
+
+        return null;
     }
 
     public visitLogicalExpr(expr: Logical): Object | null {
