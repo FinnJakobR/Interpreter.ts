@@ -648,7 +648,7 @@ export default class Parser {
                 this.advance();
 
                 if(!this.check(TokenType.LEFT_BRACE)){
-                    items.push(new Literal(this.peek().lexeme));
+                    items.push(new Literal(this.previous().lexeme));
                     continue;
                 }
 
