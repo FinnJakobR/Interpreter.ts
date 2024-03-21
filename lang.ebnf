@@ -53,4 +53,4 @@ call           → primary ("(" arguments? ")")* ;
 arguments      → (expression | lambda) ( "," (expression | lambda) )* ;
 primary        → NUMBER | STRING | "true" | "false" | "nil" | Template | Array  | "(" expression ")" ;
 Template       → "`" (IDENTIFIER | ("$" "{" expression "}"))* " "`""
-Array        →  "[" primary ( "," primary )* "]" ;
+Array          →  "[" primary ( "," primary )* "]" ;

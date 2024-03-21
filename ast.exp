@@ -1,8 +1,4 @@
 Assign :Token name,Expr value
-PlusAssign :Token name,Expr value
-MinusAssign :Token name,Expr value
-StarAssign :Token name,Expr value
-SlashAssign :Token name,Expr value
 Binary:Expr left,Token operator,Expr right
 Call:Expr callee,Token paren,Expr[] args
 Grouping :Expr expression

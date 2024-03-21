@@ -1,7 +1,7 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, MinusAssign, SlashAssign, StarAssign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
@@ -349,34 +349,6 @@ export default class Interpreter implements Visitor<Object | null>{
         return null;
     }
 
-    public visitMinusAssignExpr(expr: MinusAssign): Object | null {
-        var value: Object | null = this.evaluate(expr.value);
-
-        var variable_value: Object | null = this.enviroment.get(expr.name);
-
-        this.checkNumberOperands(expr.name, value,variable_value);
-
-        value = <number>variable_value - <number>value;
-
-        this.enviroment.assign(expr.name, value);
-
-        return value;
-    }
-
-    public visitSlashAssignExpr(expr: SlashAssign): Object | null {
-        var value: Object | null = this.evaluate(expr.value);
-
-        var variable_value: Object | null = this.enviroment.get(expr.name);
-
-        this.checkNumberOperands(expr.name, value,variable_value);
-        this.checkIfNull(value, expr.name);
-                
-        value = <number> variable_value / <number>value;
-
-        this.enviroment.assign(expr.name, value);
-
-        return value;
-    }
 
     public visitTemplateExpr(expr: Template): Object | null {
         var string = "";
@@ -388,21 +360,6 @@ export default class Interpreter implements Visitor<Object | null>{
 
         return string;
         
-    }
-
-    public visitStarAssignExpr(expr: StarAssign): Object | null {
-        
-        var value: Object | null = this.evaluate(expr.value);
-
-        var variable_value: Object | null = this.enviroment.get(expr.name);
-
-        this.checkNumberOperands(expr.name, value,variable_value);
-
-        value = <number> variable_value * <number>value;
-
-        this.enviroment.assign(expr.name, value);
-
-        return value;
     }
 
 
@@ -442,6 +399,27 @@ export default class Interpreter implements Visitor<Object | null>{
 
         switch(expr.operator.type){
             case TokenType.MINUS: {
+
+                if(typeof left === "number" && right instanceof FloxArrayTable){
+                    var sizeOfArray: number = right.size;
+
+                    if(sizeOfArray < left) throw runtimeError(new Token(TokenType.MINUS, "-", "-", -1), "remove Size from left ist bigger than the Array Size");
+
+                    right.removeFromStart(left);
+
+                    return right;
+                } 
+
+                if(typeof right === "number" && left instanceof FloxArrayTable){
+                    var sizeOfArray: number = left.size;
+
+                    if(sizeOfArray < right) throw runtimeError(new Token(TokenType.MINUS, "-", "-", -1), "remove Size from right ist bigger than the Array Size");
+
+                    left.removeFromEnd(right);
+
+                    return left;
+                }
+
                 this.checkNumberOperands(expr.operator, left,right);
                 return <number>left - <number>right;
             }
@@ -453,6 +431,21 @@ export default class Interpreter implements Visitor<Object | null>{
 
                 if((typeof left == "string" && typeof right === "number") || (typeof left == "number" && typeof right === "string") ) return left.toString() + right.toString();
             
+                if(left instanceof FloxArrayTable && !(right instanceof FloxArrayTable)) {
+                    left.push(expr.right);
+                    return left;
+                }
+
+                if(right instanceof FloxArrayTable && !(left instanceof FloxArrayTable)) {
+                    right.unshift(expr.left);
+                    return right;
+                }
+
+                if(left instanceof FloxArrayTable && (right instanceof FloxArrayTable)) {
+                    left.concat(right);
+                    return left;
+                }
+
                 break;
             }
 
@@ -464,6 +457,9 @@ export default class Interpreter implements Visitor<Object | null>{
             }
 
             case TokenType.STAR: {
+
+
+
                 this.checkNumberOperands(expr.operator, left,right);
                 return <number>left * <number> right;
             }
@@ -495,6 +491,13 @@ export default class Interpreter implements Visitor<Object | null>{
         }
 
         return null;
+    }
+
+    schnittmenge(left: FloxArrayTable, right: FloxArrayTable): number[]{
+        var num: number[] = [];
+
+
+        return num;
     }
 
 
