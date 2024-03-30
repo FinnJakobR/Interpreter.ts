@@ -19,6 +19,7 @@ visitLogicalExpr( expr: Logical) : R;
 visitUnaryExpr( expr: Unary) : R;
 visitArrayExpr( expr: Array) : R;
 visitArrayCallExpr( expr: ArrayCall) : R;
+visitArrayAssignExpr( expr: ArrayAssign) : R;
 visitVariableExpr( expr: Variable) : R;
 }
 export class Assign extends Expr{
@@ -161,6 +162,19 @@ export class ArrayCall extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitArrayCallExpr(this);
+        }}
+
+
+export class ArrayAssign extends Expr{
+    public callee : ArrayCall;
+    public value : Expr;
+    constructor ( callee : ArrayCall, value : Expr,){
+        super()
+        this.callee = callee;
+        this.value = value;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitArrayAssignExpr(this);
         }}
 
 

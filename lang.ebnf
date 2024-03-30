@@ -38,7 +38,7 @@ varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 lambda         → "func" lambda function 
 lambdaFunction → IDENTIFIER "("parameters ?")" block
 
-expression     → assignment ;
+expression     → assignment
 assignment     → IDENTIFIER "=" assignment
                | logic_or ;
 logic_or       → logic_and ( "or" logic_and )* ;

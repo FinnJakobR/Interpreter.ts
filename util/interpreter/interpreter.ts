@@ -1,7 +1,7 @@
 
 import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
@@ -9,6 +9,11 @@ import JumpTable from "../state/jumptable";
 import FloxCallable from "../state/callable";
 import ClockFunction, { FloxFunction } from "../native_functions/function";
 import FloxArrayTable from "../state/array";
+import exp from "constants";
+
+const replaceAt = function(str: string, index:number, replacement:any): string {
+    return str.substring(0, index) + replacement.toString() + str.substring(index + replacement.toString().length);
+}
 
 export default class Interpreter implements Visitor<Object | null>{
 
@@ -217,7 +222,10 @@ export default class Interpreter implements Visitor<Object | null>{
 
     public visitAssignExpr(expr: Assign): Object | null {
         var value: Object | null = this.evaluate(expr.value);
-        this.enviroment.assign(expr.name, value);
+
+        if(expr.name instanceof Variable){
+            this.enviroment.assign(expr.name.name, value);
+        }
         
         return value;
 
@@ -299,6 +307,44 @@ export default class Interpreter implements Visitor<Object | null>{
 
         return this.evaluate(expr.right);
     }
+    
+    public visitArrayAssignExpr(expr: ArrayAssign): Object | null {
+        var evaluated_index = this.evaluate(expr.callee.index);
+
+        if(expr.callee.expr_paren instanceof Literal){
+            var evaluated_paren = this.evaluate(expr.callee.expr_paren);
+
+            if( typeof evaluated_index != "number") throw runtimeError(expr.callee.paren, "Cannot index with non-int value!");
+
+            if(!evaluated_index) throw runtimeError(expr.callee.paren, "Cannot index nil!");
+    
+            if(typeof evaluated_paren === "number") throw runtimeError(expr.callee.paren, "Cannot index at a number!");
+    
+            
+            if(typeof evaluated_paren === "string") {
+                return replaceAt(evaluated_paren, evaluated_index!, this.evaluate(expr.value));
+            }
+    
+        }
+
+        if(expr.callee.expr_paren instanceof Variable){
+            var variable = this.enviroment.get(expr.callee.expr_paren.name);
+
+            if((variable instanceof FloxArrayTable)){
+                
+                variable.set(<number>evaluated_index, expr.value);
+
+                this.enviroment.assign(expr.callee.expr_paren.name, variable);
+
+            }else throw runtimeError(expr.callee.expr_paren.name, "variable is not a type of Array!");
+
+        }
+
+        
+
+        return null;
+        
+    }
 
     private instanceOfCallable(object: any): object is FloxCallable {
         return "call" in object;
@@ -307,7 +353,12 @@ export default class Interpreter implements Visitor<Object | null>{
     public visitPlusAssignExpr(expr: Assign): Object | null {
         var value: Object | null = this.evaluate(expr.value);
 
-        var variable_value: Object | null = this.enviroment.get(expr.name);
+        var variable_value: Object | null = null;
+
+        if(expr.name instanceof Variable){
+            var variable_value = this.enviroment.get(expr.name.name);
+        }
+
 
         if(typeof value == "number" && typeof variable_value == "number") value = <number>value + <number>variable_value;
 
@@ -316,7 +367,9 @@ export default class Interpreter implements Visitor<Object | null>{
         if((typeof value == "string" && typeof variable_value === "number") || (typeof value == "number" && typeof variable_value === "string") ) value = value.toString() + variable_value.toString();
 
 
-        this.enviroment.assign(expr.name, value);
+        if(expr.name instanceof Variable){
+            this.enviroment.assign(expr.name.name, value);
+        }
         
         return value;
 

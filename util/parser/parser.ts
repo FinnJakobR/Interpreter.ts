@@ -1,7 +1,8 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, Print, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, Print, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
+import FloxArrayTable from "../state/array";
 
 class ParseError extends Error {
     constructor(){
@@ -391,11 +392,15 @@ export default class Parser {
 
         if(this.match(TokenType.EQUAL)){
             var equals: Token = this.previous();
-            var value: Expr = this.assignment();
+            var value: Expr = this.assignment();; 
             
             if(expr instanceof Variable){
                 var name : Token = expr.name;
                 return new Assign(name, value);
+            }
+
+            if(expr instanceof ArrayCall){
+                return new ArrayAssign(expr, value);
             }
 
             runtimeError(equals, `unknown variable ${equals.lexeme}.`);
