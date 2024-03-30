@@ -84,7 +84,6 @@ export default class Flox {
     run(data: string){
         var s = new Scanner(data);
         var tokens = s.scanTokens();
-
         var parser: Parser = new Parser(tokens);
 
         var expression: Stmt[] = parser.parse();

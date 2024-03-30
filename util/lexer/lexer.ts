@@ -8,6 +8,7 @@ export default class Scanner {
     private start: number;
     private current: number;
     private line: number;
+    private context: string;
 
     constructor(source: string){
         this.source = source;
@@ -15,6 +16,7 @@ export default class Scanner {
         this.start = 0; //erste Char des Lexemes
         this.current = 0 // current Char das Lexemes
         this.line = 1;
+        this.context =  "NORMAL";
     }
 
     scanTokens(): Token[]{
@@ -39,10 +41,25 @@ export default class Scanner {
        switch (c) {
             case "(": this.addToken(TokenType.LEFT_PAREN, null); break;
             case ")": this.addToken(TokenType.RIGHT_PAREN, null); break;
-            case "{": this.addToken(TokenType.LEFT_BRACE, null); break;
+            case "{": {
+                this.addToken(TokenType.LEFT_BRACE, null);
+                
+                if(this.context == "TEMPLATE"){
+                    this.context = "INTERPOLATION";
+                }
+                break;
+            }
             case "[": this.addToken(TokenType.LEFT_BRACKET, null); break;
             case "]": this.addToken(TokenType.RIGHT_BRACKET, null); break;
-            case "}": this.addToken(TokenType.RIGHT_BRACE, null); break;
+            case "}": {
+                this.addToken(TokenType.RIGHT_BRACE, null); 
+                if(this.context == "INTERPOLATION"){
+                    this.context = "TEMPLATE";
+                }
+                
+                break;
+
+            }
             case ",": this.addToken(TokenType.COMMA, null); break;
             case ".": this.addToken(TokenType.DOT, null); break;
             case ":": this.addToken(TokenType.DOUBLE_DOT,null); break;
@@ -100,7 +117,7 @@ export default class Scanner {
                 this.lex_multilinestring();
                 break;
             case '`':
-                this.addToken(TokenType.BACKTICK, null);
+                this.templatestring();
                 break;
             case "$":
                 this.addToken(TokenType.DOLLAR, null);
@@ -166,6 +183,24 @@ export default class Scanner {
 
     }
 
+    private templatestring(): void {
+
+        if(this.context == "INTERPOLATION"){
+            staticError(this.line, "unterminated Interpolation");
+            return;
+        }
+
+        this.addToken(TokenType.TEMPLATE, null);
+        if(this.context === "NORMAL"){
+            this.context = "TEMPLATE";      
+        
+        } else {
+            this.context = "NORMAL";
+        }
+            return
+        }
+
+
     private lex_multilinestring(): void{
         while(this.peek() != `'` && !this.isAtEnd()){
             if(this.peek() == "\n") this.line ++;
@@ -222,15 +257,21 @@ export default class Scanner {
 
 
     lex_identifier(){
-        
-        while(this.isAlphaNum(this.peek())) this.advance();
+            while(this.isAlphaNum(this.peek()) || (this.context == "TEMPLATE" && this.peek() != "$" && this.peek() != "{" && this.peek() != "}"  && this.peek() != "`")) this.advance();
 
-        var text = this.source.substring(this.start, this.current);
-        var type: TokenType = keywords[text];
+            var text = this.source.substring(this.start, this.current);
+            var type: TokenType = keywords[text];
+    
+            if(!type) type = TokenType.IDENTIFIER;
+    
+            this.addToken(type, text);
 
-        if(!type) type = TokenType.IDENTIFIER;
+            console.log(this.tokens)
 
-        this.addToken(type, text);
+            return
+
+
+
 
     }
 };

@@ -647,7 +647,7 @@ export default class Parser {
         if(this.match(TokenType.FALSE)) return new Literal(false);
         if(this.match(TokenType.NIL)) return new Literal(null);
         if(this.match(TokenType.MAYBE)) return new Literal(Math.random() < 0.5);
-        if(this.match(TokenType.BACKTICK)) return this.template();
+        if(this.match(TokenType.TEMPLATE)) return this.template();
         if(this.match(TokenType.LEFT_BRACKET)) return this.array();
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
@@ -684,7 +684,7 @@ export default class Parser {
 
         var items: Expr[] = [];
 
-        while(!this.check(TokenType.BACKTICK) && !this.isAtEnd()){
+        while(!this.check(TokenType.TEMPLATE) && !this.isAtEnd()){
             if(this.check(TokenType.DOLLAR)){
                 this.advance();
 
@@ -695,7 +695,7 @@ export default class Parser {
 
                 this.advance();
 
-                while(!this.check(TokenType.BACKTICK) && !this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()){
+                while(!this.check(TokenType.TEMPLATE) && !this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()){
                     items.push(this.expression());
                 }
 
@@ -710,7 +710,7 @@ export default class Parser {
             this.advance();
         }
 
-        this.consume(TokenType.BACKTICK, "unterminated String template!");
+        this.consume(TokenType.TEMPLATE, "unterminated String template!");
         
         return new Template(items);
     }
