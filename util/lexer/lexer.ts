@@ -101,12 +101,23 @@ export default class Scanner {
                 
                 break;
 
-            case " ": 
+            case " ":
+                
+                if(this.context === "TEMPLATE"){
+                    this.addToken(TokenType.STRING, " ");
+                }
+                break;
+
             case "\r": 
             case "\t": 
                 break;
 
             case "\n": 
+                
+                if(this.context === "TEMPLATE"){
+                    this.addToken(TokenType.STRING, "\n");
+                }
+
                 this.line ++;
                 break;
 
@@ -266,7 +277,6 @@ export default class Scanner {
     
             this.addToken(type, text);
 
-            console.log(this.tokens)
 
             return
 
