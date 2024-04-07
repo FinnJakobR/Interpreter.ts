@@ -1,7 +1,5 @@
 # A dynamic Typed Language written in TypeScript
 
-# Features
-
 ## Variables 
 
 ```
@@ -69,6 +67,14 @@ y/=1;
 - maybe -> random 50% true or false 
 ```
 
+# String interpolation 
+
+```
+var x = 10;
+
+var y = \` x is : ${x} \`
+
+```
 
 
 # Syntax 
