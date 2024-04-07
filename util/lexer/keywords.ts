@@ -27,5 +27,6 @@ export const keywords : keywordHash = {
     "continue": TokenType.CONTINUE,
     "case": TokenType.CASE,
     "switch": TokenType.SWITCH,
-    "default": TokenType.DEFAULT
+    "default": TokenType.DEFAULT,
+    "const": TokenType.CONST
 };

@@ -287,10 +287,12 @@ export class Return extends Stmt{
 export class Var extends Stmt{
     public name : Token;
     public initializer : Expr|null;
-    constructor ( name : Token, initializer : Expr|null,){
+    public mutable : boolean;
+    constructor ( name : Token, initializer : Expr|null, mutable : boolean,){
         super()
         this.name = name;
         this.initializer = initializer;
+        this.mutable = mutable;
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitVarStmt(this);

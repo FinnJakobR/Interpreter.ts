@@ -1,5 +1,74 @@
-# Flox
-# A dynamic Typed Language 
+# A dynamic Typed Language written in TypeScript
+
+# Features
+
+## Variables 
+
+```
+const x = 10; // not mutable
+var x = 10; // mutable
+```
+
+## functions 
+
+```
+fun x () {
+    return 10; // Return a Number
+}
+
+fun y () {
+    var x = 100;
+    const y = 10;
+
+    return x, y; // Return Tuple
+}
+```
+
+## Tuple and Array 
+```
+var tuple = (10,11,12); // not mutable
+var array = [1,2,3,4,5]; // mutable 
+
+var x = [1,2,3,4,5] + 1 // [1,2,3,4,5,1]
+var y = 1 + [1,2,3,4,5] // [1,1,2,3,4,5]
+var z = 1 - [1,2,3,4,5] // [2,3,4,5] -> how many indzies should be Deleted
+var a = [1,2,3,4,5] - 2 // [1,2,3] 
+var b = [1,2] * [3,4] // [(1,3), (1,4), (2,3), (3,4)] 
+```
+
+# Others
+
+```
+switch (expr) {
+    case epxr : {
+        // BODY
+    }
+}
+
+if (expr) {
+// BODY
+}
+
+
+while(expr) {
+    //BODY
+}
+
+x+=1;
+y-=1;
+z*=1;
+y/=1;
+```
+
+## Logical Expression 
+```
+- and 
+- or 
+- true 
+- false 
+- maybe -> random 50% true or false 
+```
+
 
 
 # Syntax 

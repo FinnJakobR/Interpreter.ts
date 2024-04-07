@@ -80,6 +80,7 @@ export default class Parser {
                 case TokenType.CLASS:
                 case TokenType.FUN:
                 case TokenType.VAR:
+                case TokenType.CONST:
                 case TokenType.FOR:
                 case TokenType.IF:
                 case TokenType.WHILE:
@@ -322,6 +323,7 @@ export default class Parser {
         try {
             if(this.match(TokenType.FUN)) return this.functionDeclaration("function");
             if(this.match(TokenType.VAR)) return this.varDeclaration();
+            if(this.match(TokenType.CONST)) return this.constDeclaration();
             if(this.match(TokenType.SWITCH)) {
                 return this.switchStatement()
             };
@@ -332,6 +334,7 @@ export default class Parser {
             return this.statement();
         }
     }
+
 
     private functionDeclaration(kind: string): Stmt {
         var name: Token = this.consume(TokenType.IDENTIFIER, "Expect " + kind + " name.");
@@ -372,7 +375,21 @@ export default class Parser {
 
         this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
 
-        return new Var(name, initializer);
+        return new Var(name, initializer, true);
+    }
+
+    private constDeclaration(): Stmt{
+        var name: Token = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+        var initializer: Expr | null = null;
+
+        if(this.match(TokenType.EQUAL)){
+            initializer = this.expression();
+        }
+
+        this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+
+        return new Var(name, initializer, false);
     }
 
     private printStatement() : Stmt {
