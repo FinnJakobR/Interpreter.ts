@@ -18,6 +18,7 @@ visitTemplateExpr( expr: Template) : R;
 visitLogicalExpr( expr: Logical) : R;
 visitUnaryExpr( expr: Unary) : R;
 visitArrayExpr( expr: Array) : R;
+visitTupelExpr( expr: Tupel) : R;
 visitArrayCallExpr( expr: ArrayCall) : R;
 visitArrayAssignExpr( expr: ArrayAssign) : R;
 visitVariableExpr( expr: Variable) : R;
@@ -147,6 +148,17 @@ export class Array extends Expr{
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitArrayExpr(this);
+        }}
+
+
+export class Tupel extends Expr{
+    public elements : Expr[];
+    constructor ( elements : Expr[],){
+        super()
+        this.elements = elements;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitTupelExpr(this);
         }}
 
 

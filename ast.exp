@@ -8,6 +8,7 @@ Template:Expr[] blocks
 Logical: Expr left,Token operator,Expr right
 Unary :Token operator,Expr right
 Array:Expr[] elements
+Tupel:Expr[] elements
 ArrayCall: Token paren,Expr expr_paren,Expr index
 ArrayAssign: ArrayCall callee,Expr value
 Variable :Token name

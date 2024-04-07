@@ -48,9 +48,10 @@ comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary | call | ArrayCall ;
-ArrayCall      → primary "[" NUMBER "]" ;
+ArrayCall      → primary "[" NUMBER "]";
 call           → primary ("(" arguments? ")")* ;
 arguments      → (expression | lambda) ( "," (expression | lambda) )* ;
-primary        → NUMBER | STRING | "true" | "false" | "nil" | Template | Array  | "(" expression ")" ;
+primary        → NUMBER | STRING | "true" | "false" | "nil" | Template | Array | Tupel  | "(" expression ")" ;
 Template       → "`" (IDENTIFIER | ("$" "{" expression "}"))* " "`""
 Array          →  "[" primary ( "," primary )* "]" ;
+Tupel          →  "(" primary ( "," primary)* ")" ;

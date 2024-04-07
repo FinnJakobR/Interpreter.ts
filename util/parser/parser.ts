@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, Print, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, Print, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign, Tupel } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 import FloxArrayTable from "../state/array";
@@ -148,15 +148,24 @@ export default class Parser {
 
     private ReturnStatement() : Stmt{
         var keyWord: Token = this.previous();
-        var value = null;
+        var value: Expr[] = [];
 
         if(!this.check(TokenType.SEMICOLON)){
-            value = this.expression();
+                
+                do {
+                    value.push(this.expression());
+                } while(this.match(TokenType.COMMA))    
         }
 
         this.consume(TokenType.SEMICOLON, "Expect ; after function return");
 
-        return new Return(keyWord, value);
+
+
+        if(value.length == 0) return new Return(keyWord, null);
+
+        if(value.length == 1) return new Return(keyWord, value[0]);
+
+        return new Return(keyWord, new Tupel(value));
     }
 
     private block(): (Stmt)[]{
@@ -649,6 +658,7 @@ export default class Parser {
         if(this.match(TokenType.MAYBE)) return new Literal(Math.random() < 0.5);
         if(this.match(TokenType.TEMPLATE)) return this.template();
         if(this.match(TokenType.LEFT_BRACKET)) return this.array();
+        if((this.match(TokenType.LEFT_PAREN))) return this.tupel();
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Literal(this.previous().literal);
@@ -678,6 +688,20 @@ export default class Parser {
         this.consume(TokenType.RIGHT_BRACKET, "Expect Closed Array!");
 
         return new Array(elements);
+    }
+
+    tupel(): Expr {
+        var elements: Expr[] = [];
+
+        if(!this.check(TokenType.LEFT_PAREN)){
+            do {
+                elements.push(this.expression());
+            } while(this.match(TokenType.COMMA))
+        }
+
+        this.consume(TokenType.RIGHT_PAREN, "Expect Closed Tupel!");
+
+        return new Tupel(elements);
     }
 
     template(): Expr {

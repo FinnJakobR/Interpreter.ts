@@ -1,7 +1,5 @@
-
-import { off } from "process";
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign, Tupel } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
@@ -9,7 +7,6 @@ import JumpTable from "../state/jumptable";
 import FloxCallable from "../state/callable";
 import ClockFunction, { FloxFunction } from "../native_functions/function";
 import FloxArrayTable from "../state/array";
-import exp from "constants";
 
 const replaceAt = function(str: string, index:number, replacement:any): string {
     return str.substring(0, index) + replacement.toString() + str.substring(index + replacement.toString().length);
@@ -111,13 +108,13 @@ export default class Interpreter implements Visitor<Object | null>{
         var value:  Object | null = this.evaluate(stmt.expression);
 
         if(value instanceof FloxArrayTable){
-            console.log("[")
+            console.log( value.mutable ? "[" : "(")
             
             for(var [index, element] of value){
-                console.log("index: " + index + ":" , this.evaluate(element) + ",");
+                console.log("index: " + index + ":" , element + ",");
             }
 
-            console.log("]");
+            console.log( value.mutable ? "]" : "(");
 
             return null;
         }
@@ -151,6 +148,7 @@ export default class Interpreter implements Visitor<Object | null>{
 
     visitReturnStmt(stmt: Return): Object | null {
         var value = null;
+
 
         if(stmt.value){
             value = this.evaluate(stmt.value);
@@ -255,21 +253,36 @@ export default class Interpreter implements Visitor<Object | null>{
             arguments.length + ".")
         }
 
-        return func.call(this, args);
+        var returnValue = func.call(this, args);
+
+        return returnValue;
 
     }
 
     public visitArrayExpr(expr: Array): Object | null {
-        var arr_obj: FloxArrayTable = new FloxArrayTable();
+        var arr_obj: FloxArrayTable = new FloxArrayTable(true);
         
         var index: number = 0;
 
         for(var ele of expr.elements){
-            arr_obj.set(index, ele);
+            arr_obj.set(index, this.evaluate(ele));
             index++;
         }
 
         return arr_obj;
+    }
+
+    public visitTupelExpr(expr: Tupel): Object | null {
+        var tuple_obj: FloxArrayTable = new FloxArrayTable(false);
+
+        var index: number = 0;
+
+        for(var ele of expr.elements){
+            tuple_obj.set(index, this.evaluate(ele));
+            index++;
+        }
+
+        return tuple_obj;
     }
 
     public visitArrayCallExpr(expr: ArrayCall): Object | null {
@@ -287,8 +300,9 @@ export default class Interpreter implements Visitor<Object | null>{
             return evaluated_paren[evaluated_index!] ?? "nil";
         }
 
+        
         if(evaluated_paren instanceof FloxArrayTable){
-            return this.evaluate(evaluated_paren.get(evaluated_index!) ?? new Literal("nil"));
+            return evaluated_paren.get(evaluated_index!) ?? new Literal("nil");
 
         }
 
@@ -332,9 +346,16 @@ export default class Interpreter implements Visitor<Object | null>{
 
             if((variable instanceof FloxArrayTable)){
                 
+                if(variable.mutable){
+
                 variable.set(<number>evaluated_index, expr.value);
 
                 this.enviroment.assign(expr.callee.expr_paren.name, variable);
+
+                }else {
+                    throw runtimeError(expr.callee.expr_paren.name, "tuple is not mutable!");
+                }
+
 
             }else throw runtimeError(expr.callee.expr_paren.name, "variable is not a type of Array!");
 
@@ -557,13 +578,6 @@ export default class Interpreter implements Visitor<Object | null>{
         }
 
         return null;
-    }
-
-    schnittmenge(left: FloxArrayTable, right: FloxArrayTable): number[]{
-        var num: number[] = [];
-
-
-        return num;
     }
 
 

@@ -1,9 +1,24 @@
-var x = [1,2,3,4,5,6,7,8,9,10];
-x[1] = 10;
-print `elements in x: 
-index ${0} .. element ${x[0]},
-index ${1} .. element ${x[1]},
-index ${2} .. element ${x[2]},
-index ${3} .. element ${x[3]},
-index ${4} .. element ${x[4]},
-`;
+
+fun test2() {
+    return -10;
+}
+
+
+fun test() {
+    var x = 10;
+    var y = 100;
+    
+    return x,y, test2(), x + y;
+}
+
+
+print test();
+
+
+var x = 10;
+
+var y = [x, 11, 12];
+
+x = 100;
+
+print y;

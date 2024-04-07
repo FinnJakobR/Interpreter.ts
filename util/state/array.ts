@@ -1,11 +1,12 @@
 import { Expr } from "../expressions/exp";
 
 
-export default class FloxArrayTable extends Map<number, Expr> {
+export default class FloxArrayTable extends Map<number, (object | null)> {
     
-    constructor(){
+    public mutable: boolean;
+    constructor(mutable: boolean){
         super();
-    
+        this.mutable = mutable;
     }
 
     push(element: Expr) {
@@ -38,7 +39,7 @@ export default class FloxArrayTable extends Map<number, Expr> {
         const newSize = Math.max(this.size - n, 0);
     
     // Temporäre Map zum Speichern der verschobenen Elemente
-    let tempMap = new Map<number, Expr>();
+    let tempMap = new Map<number, (object | null)>();
 
     // Fülle die temporäre Map mit den neu indizierten Elementen
     Array.from(this.entries()).forEach(([key, value], index) => {
