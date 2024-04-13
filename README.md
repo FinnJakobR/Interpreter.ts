@@ -72,7 +72,7 @@ y/=1;
 ```
 var x = 10;
 
-var y = \` x is : ${x} \`
+var y = ` x is : ${x} `;
 
 ```
 

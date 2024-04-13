@@ -213,6 +213,7 @@ visitIfStmt( stmt: If) : R;
 visitPrintStmt( stmt: Print) : R;
 visitReturnStmt( stmt: Return) : R;
 visitVarStmt( stmt: Var) : R;
+visitConstStmt( stmt: Const) : R;
 visitWhileStmt( stmt: While) : R;
 visitBreakStmt( stmt: Break) : R;
 visitContinueStmt( stmt: Continue) : R;
@@ -287,15 +288,26 @@ export class Return extends Stmt{
 export class Var extends Stmt{
     public name : Token;
     public initializer : Expr|null;
-    public mutable : boolean;
-    constructor ( name : Token, initializer : Expr|null, mutable : boolean,){
+    constructor ( name : Token, initializer : Expr|null,){
         super()
         this.name = name;
         this.initializer = initializer;
-        this.mutable = mutable;
   }
  accept<R>(visitor: Visitor<R>): R {
             return visitor.visitVarStmt(this);
+        }}
+
+
+export class Const extends Stmt{
+    public name : Token;
+    public initializer : Expr|null;
+    constructor ( name : Token, initializer : Expr|null,){
+        super()
+        this.name = name;
+        this.initializer = initializer;
+  }
+ accept<R>(visitor: Visitor<R>): R {
+            return visitor.visitConstStmt(this);
         }}
 
 

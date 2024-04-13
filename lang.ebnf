@@ -1,6 +1,7 @@
 program        → declaration* EOF ;
 
 declaration    → varDecl
+               | constDecl 
                | funcDecl
                | statement 
                | switchStmt ;
@@ -34,6 +35,7 @@ block          → "{" declaration | breakStmt | continueStmt* "}" ;
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" 
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+constDecl      → "const" IDENTIFIER ( "=" expression )? ";" ;
 
 lambda         → "func" lambda function 
 lambdaFunction → IDENTIFIER "("parameters ?")" block

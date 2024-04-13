@@ -1,5 +1,5 @@
 import { Token, TokenType } from "../lexer/token";
-import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, Print, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign, Tupel } from "../expressions/exp";
+import { Assign, Binary, Block, Expr, Expression, Grouping, If, Literal, Logical, Print, Stmt, Unary, Var, Variable, While, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign, Tupel, Const } from "../expressions/exp";
 import { runtimeError, staticError } from "../errors/error";
 import JumpTable from "../state/jumptable";
 import FloxArrayTable from "../state/array";
@@ -375,7 +375,7 @@ export default class Parser {
 
         this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
 
-        return new Var(name, initializer, true);
+        return new Var(name, initializer);
     }
 
     private constDeclaration(): Stmt{
@@ -389,7 +389,7 @@ export default class Parser {
 
         this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
 
-        return new Var(name, initializer, false);
+        return new Const(name, initializer) ;
     }
 
     private printStatement() : Stmt {

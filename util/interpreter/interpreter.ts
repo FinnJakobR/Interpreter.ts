@@ -1,5 +1,5 @@
 import { runtimeError } from "../errors/error";
-import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign, Tupel } from "../expressions/exp";
+import { Binary, Expr, Stmt, Expression, Grouping, Literal, Print, Unary, Visitor, Var, Variable, Assign, Block, If, While, Logical, Break, Continue, Switch, Call, Function, Return, LambdaFunction, Template, Array, ArrayCall, ArrayAssign, Tupel, Const } from "../expressions/exp";
 import { Token, TokenType } from "../lexer/token";
 import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
@@ -207,7 +207,17 @@ export default class Interpreter implements Visitor<Object | null>{
     }
 
     visitVariableExpr(expr: Variable): Object | null {
-        return this.enviroment.get(expr.name);
+
+        
+        var val = this.enviroment.get(expr.name);
+
+        if(val instanceof Const) {
+            if(!val.initializer) return null;
+
+            return this.evaluate(val.initializer);
+        }
+
+        return val;
     }
 
     public visitExpressionStmt(stmt: Expression) : Object | null{
@@ -223,6 +233,10 @@ export default class Interpreter implements Visitor<Object | null>{
 
         if(expr.name instanceof Variable){
             this.enviroment.assign(expr.name.name, value);
+        }else {
+            var val = this.enviroment.get(expr.name);
+
+            if(val instanceof Const) throw runtimeError(expr.name ,"Const variables are immutable!");
         }
         
         return value;
@@ -365,6 +379,13 @@ export default class Interpreter implements Visitor<Object | null>{
 
         return null;
         
+    }
+
+    public visitConstStmt(stmt: Const): Object | null {
+
+        this.enviroment.define(stmt.name.literal, stmt)
+
+        return null;
     }
 
     private instanceOfCallable(object: any): object is FloxCallable {

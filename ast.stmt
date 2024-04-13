@@ -3,7 +3,8 @@ Function: Token name,Token[] params,Stmt[] body
 If: Expr condition,Stmt thenBranch,Stmt elseBranch
 Print: Expr expression
 Return: Token keyword,Expr|null value
-Var: Token name,Expr|null initializer,boolean mutable
+Var: Token name,Expr|null initializer
+Const: Token name,Expr|null initializer
 While: Expr condition,Stmt body
 Break: Token name
 Continue: Token name
