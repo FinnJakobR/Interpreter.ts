@@ -5,7 +5,7 @@ import { BreakError, ContinueError, ReturnError } from "../parser/parser";
 import Enviroment from "../state/environment";
 import JumpTable from "../state/jumptable";
 import FloxCallable from "../state/callable";
-import ClockFunction, { FloxFunction } from "../native_functions/function";
+import ClockFunction, { FloxFunction, TupleFunction } from "../native_functions/function";
 import FloxArrayTable from "../state/array";
 
 const replaceAt = function(str: string, index:number, replacement:any): string {
@@ -24,6 +24,8 @@ export default class Interpreter implements Visitor<Object | null>{
         this.REPL = REPL ?? false;
 
         this.globals.define("clock", new ClockFunction());
+
+        this.globals.define("Tuple", new TupleFunction());
 
 
     };
@@ -229,7 +231,9 @@ export default class Interpreter implements Visitor<Object | null>{
     }
 
     public visitAssignExpr(expr: Assign): Object | null {
+        
         var value: Object | null = this.evaluate(expr.value);
+
 
         if(expr.name instanceof Variable){
             this.enviroment.assign(expr.name.name, value);
@@ -261,7 +265,7 @@ export default class Interpreter implements Visitor<Object | null>{
 
         var func: FloxCallable = <FloxCallable>callee;
 
-        if(args.length != func.arity()){
+        if(args.length != func.arity() && func.arity() != Infinity){
             throw runtimeError(expr.paren, "Expected " +
             func.arity() + " arguments but got " +
             arguments.length + ".")
@@ -300,6 +304,7 @@ export default class Interpreter implements Visitor<Object | null>{
     }
 
     public visitArrayCallExpr(expr: ArrayCall): Object | null {
+        console.log("ARRAY CALL!");
         var evaluated_paren = this.evaluate(expr.expr_paren);
         var evaluated_index = this.evaluate(expr.index);
 
@@ -316,7 +321,7 @@ export default class Interpreter implements Visitor<Object | null>{
 
         
         if(evaluated_paren instanceof FloxArrayTable){
-            return evaluated_paren.get(evaluated_index!) ?? new Literal("nil");
+            return evaluated_paren.get(evaluated_index!) ?? "nil";
 
         }
 
@@ -566,7 +571,9 @@ export default class Interpreter implements Visitor<Object | null>{
 
             case TokenType.STAR: {
 
-
+                if(left instanceof FloxArrayTable && right instanceof FloxArrayTable){
+                    return left.kartProduct(right);
+                }
 
                 this.checkNumberOperands(expr.operator, left,right);
                 return <number>left * <number> right;

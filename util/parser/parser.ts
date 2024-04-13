@@ -675,7 +675,6 @@ export default class Parser {
         if(this.match(TokenType.MAYBE)) return new Literal(Math.random() < 0.5);
         if(this.match(TokenType.TEMPLATE)) return this.template();
         if(this.match(TokenType.LEFT_BRACKET)) return this.array();
-        if((this.match(TokenType.LEFT_PAREN))) return this.tupel();
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Literal(this.previous().literal);

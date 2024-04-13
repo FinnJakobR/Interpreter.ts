@@ -1,4 +1,4 @@
-import { Expr } from "../expressions/exp";
+import { Expr, Tupel } from "../expressions/exp";
 
 
 export default class FloxArrayTable extends Map<number, (object | null)> {
@@ -66,4 +66,21 @@ export default class FloxArrayTable extends Map<number, (object | null)> {
                 this.delete(key);
             });
         }
+
+    kartProduct(right: FloxArrayTable) {
+        var result = new FloxArrayTable(true);
+        var index = 0; 
+
+        this.forEach((valueA, keyA) => {
+            // Durchlaufen aller Einträge in der zweiten FloxArrayTable
+            right.forEach((valueB, keyB) => {
+                // Erstellen einer neuen FloxArrayTable für das aktuelle Paar
+                const tuple = new Tupel([valueA as Expr, valueB as Expr]);
+                // Füge das erstellte Tupel zum Ergebnis hinzu
+                result.set(index++, tuple);
+            });
+        });
+
+        return result;
+    }    
 }

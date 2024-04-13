@@ -24,7 +24,7 @@ fun y () {
 
 ## Tuple and Array 
 ```
-var tuple = (10,11,12); // not mutable
+var tuple = T(10,11,12); // not mutable
 var array = [1,2,3,4,5]; // mutable 
 
 var x = [1,2,3,4,5] + 1 // [1,2,3,4,5,1]

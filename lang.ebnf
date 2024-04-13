@@ -56,4 +56,4 @@ arguments      → (expression | lambda) ( "," (expression | lambda) )* ;
 primary        → NUMBER | STRING | "true" | "false" | "nil" | Template | Array | Tupel  | "(" expression ")" ;
 Template       → "`" (IDENTIFIER | ("$" "{" expression "}"))* " "`""
 Array          →  "[" primary ( "," primary )* "]" ;
-Tupel          →  "(" primary ( "," primary)* ")" ;
+Tupel          →  "T""(" primary ( "," primary)* ")" ;
